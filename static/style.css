@@ -12,7 +12,7 @@ body {
 
 #app {
     width: 100%;
-    max-width: 400px; /* Mantener el tamaño para simular un celular */
+    max-width: 600px; /* Mantener el tamaño para simular un celular */
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
