@@ -222,19 +222,22 @@
                 📋 Datos del Proyecto
             </div>
 
-            <div class="form-group">
-                <label for="codigo_proyecto">Código Proyecto</label>
-                <input type="text" id="codigo_proyecto" value="{{ proyecto.codigo }}" readonly class="readonly-field">
-            </div>
+            <!-- NUEVA ESTRUCTURA: Grid de 3 columnas -->
+            <div class="datos-proyecto-grid">
+                <div class="form-group">
+                    <label for="codigo_proyecto">Código</label>
+                    <input type="text" id="codigo_proyecto" value="{{ proyecto.codigo }}" readonly class="readonly-field">
+                </div>
 
-            <div class="form-group">
-                <label for="contratista">Contratista</label>
-                <input type="text" id="contratista" value="{{ proyecto.contratista }}" readonly class="readonly-field">
-            </div>
+                <div class="form-group">
+                    <label for="contratista">Contratista</label>
+                    <input type="text" id="contratista" value="{{ proyecto.contratista }}" readonly class="readonly-field">
+                </div>
 
-            <div class="form-group">
-                <label for="contrato">Número de Contrato</label>
-                <input type="text" id="contrato" value="{{ proyecto.contrato }}" readonly class="readonly-field">
+                <div class="form-group">
+                    <label for="contrato">Contrato</label>
+                    <input type="text" id="contrato" value="{{ proyecto.contrato }}" readonly class="readonly-field">
+                </div>
             </div>
 
             <!-- SECCIÓN 1: ACTIVIDADES FINALIZADAS -->
