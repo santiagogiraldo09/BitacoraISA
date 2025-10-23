@@ -145,28 +145,37 @@ function agregarActividadFinalizada() {
         <div class="actividad-item" data-id="${id}" data-tipo="finalizada">
             <div class="form-group">
                 <label>Ítem</label>
-                <div class="input-with-mic">
-                    <input type="number" class="act-item" placeholder="Número de ítem">
-                    <button type="button" class="mic-button" onclick="iniciarReconocimientoVoz(this)">
-                        🎤
+                <div class="input-with-icon">
+                    <input type="number" class="act-item" placeholder="Número de ítem" id="fin-item-${id}">
+                    <button type="button" class="record-btn" data-target-input="fin-item-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fin-item-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
                     </button>
                 </div>
             </div>
             <div class="form-group">
                 <label>Descripción *</label>
-                <div class="input-with-mic">
-                    <input type="text" class="act-descripcion" required placeholder="Descripción de la actividad">
-                    <button type="button" class="mic-button" onclick="iniciarReconocimientoVoz(this)">
-                        🎤
+                <div class="input-with-icon">
+                    <input type="text" class="act-descripcion" required placeholder="Descripción de la actividad" id="fin-desc-${id}">
+                    <button type="button" class="record-btn" data-target-input="fin-desc-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fin-desc-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
                     </button>
                 </div>
             </div>
             <div class="form-group">
                 <label>Observaciones</label>
-                <div class="input-with-mic textarea-wrapper">
-                    <textarea class="act-observaciones" rows="2" placeholder="Observaciones"></textarea>
-                    <button type="button" class="mic-button" onclick="iniciarReconocimientoVoz(this)">
-                        🎤
+                <div class="input-with-icon textarea-wrapper">
+                    <textarea class="act-observaciones" rows="2" placeholder="Observaciones" id="fin-obs-${id}"></textarea>
+                    <button type="button" class="record-btn" data-target-input="fin-obs-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fin-obs-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
                     </button>
                 </div>
             </div>
@@ -177,6 +186,11 @@ function agregarActividadFinalizada() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+    
+    // Agregar event listeners a los botones recién creados
+    agregarListenersVoz(`fin-item-${id}`);
+    agregarListenersVoz(`fin-desc-${id}`);
+    agregarListenersVoz(`fin-obs-${id}`);
 }
 
 function recopilarActividadesFinalizadas() {
