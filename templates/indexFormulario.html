@@ -171,6 +171,37 @@
         margin-right: 8px;
         font-weight: bold;
     }
+    /*esto es lo nuevo para areglar los campos seteados*/
+    .datos-proyecto-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* 3 columnas iguales */
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .datos-proyecto-grid .form-group {
+        margin-bottom: 0;
+    }
+    
+    .datos-proyecto-grid label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 3px;
+    }
+    
+    .datos-proyecto-grid input {
+        font-size: 13px;
+        padding: 8px;
+        width: 100%;
+    }
+    
+    /* Para móviles - que se pongan en vertical */
+    @media (max-width: 768px) {
+        .datos-proyecto-grid {
+            grid-template-columns: 1fr; /* 1 columna en móvil */
+        }
+    }
 </style>
 </head>
 <body>
