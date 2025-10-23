@@ -1042,22 +1042,6 @@ function transcribeAudio(audioBlob) {
         });
 }
 
-// =================================================================
-//          FUNCIONES DE MINIATURAS Y AYUDA
-// =================================================================
-/*
-function addPhotoThumbnail(base64String, index) {
-    const container = document.getElementById('photoThumbnails');
-    const thumbWrapper = document.createElement('div');
-    thumbWrapper.className = 'photo-thumbnail-wrapper';
-    thumbWrapper.setAttribute('data-index', index);
-    thumbWrapper.innerHTML = `
-        <img src="${base64String}" class="thumbnail-image">
-        <div class="photo-controls">
-            <button class="photo-button" onclick="deletePhoto(${index})" title="Eliminar foto">❌</button>
-        </div>`;
-    container.appendChild(thumbWrapper);
-}*/
 function addPhotoThumbnail(base64String, index) {
     const container = document.getElementById('photoThumbnails');
     const thumbWrapper = document.createElement('div');
@@ -1098,20 +1082,6 @@ function deletePhoto(index) {
     const thumbnailToRemove = document.querySelector(`.photo-thumbnail-wrapper[data-index='${index}']`);
     if (thumbnailToRemove) thumbnailToRemove.remove();
 }
-
-/*
-function addVideoThumbnail(base64String, index) {
-    const container = document.getElementById('videoThumbnails');
-    const thumbWrapper = document.createElement('div');
-    thumbWrapper.className = 'photo-thumbnail-wrapper';
-    thumbWrapper.setAttribute('data-video-index', index);
-    thumbWrapper.innerHTML = `
-        <video src="${base64String}" class="thumbnail-image" controls playsinline></video>
-        <div class="photo-controls">
-            <button class="photo-button" onclick="deleteVideo(${index})">❌</button>
-        </div>`;
-    container.appendChild(thumbWrapper);
-}*/
 
 function addVideoThumbnail(base64String, index) {
     const container = document.getElementById('videoThumbnails');
@@ -1158,56 +1128,6 @@ function isIOS() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
 
-// =================================================================
-//          FUNCIÓN DE GUARDADO FINAL
-// =================================================================
-/*
-function saveRecord() {
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const saveButton = document.getElementById('save-record');
-    loadingOverlay.style.display = 'flex';
-    saveButton.disabled = true;
-    saveButton.textContent = "Guardando...";
-
-    const projectId = new URLSearchParams(window.location.search).get("project_id");
-    const respuestas = {
-        // Clave que Python espera  <-- Valor del campo en HTML
-        zona_intervencion: document.getElementById('question_0').value, // Corresponde a "Tipo de informe"
-        items:             document.getElementById('question_1').value, // Corresponde a "Sede"
-        metros_lineales:   document.getElementById('question_2').value, // Corresponde a "Repuestos utilizados"
-        proximas_tareas:   document.getElementById('question_3').value  // Corresponde a "Repuestos a cotizar"
-    };
-    const finalPhotos = capturedPhotos.filter(p => p !== null);
-    const finalVideos = capturedVideos.filter(v => v !== null);
-
-    const payload = {
-        respuestas: respuestas,
-        fotos: finalPhotos,
-        videos: finalVideos,
-        project_id: projectId
-    };
-
-    fetch('/guardar-registro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'Error del servidor') });
-        return response.json();
-    })
-    .then(data => {
-        loadingOverlay.style.display = 'none';
-        alert(data.mensaje || "¡Registro guardado exitosamente!");
-        window.location.href = '/registros';
-    })
-    .catch(error => {
-        loadingOverlay.style.display = 'none';
-        saveButton.disabled = false;
-        saveButton.textContent = "Guardar registro";
-        alert(`Error: ${error.message}`);
-    });
-}*/
 function saveRecord() {
     const loadingOverlay = document.getElementById('loading-overlay');
     const saveButton = document.getElementById('save-record');
