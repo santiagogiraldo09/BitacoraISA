@@ -131,7 +131,7 @@ button {
     color: white;
 }
 
-#save-record-form{
+#save-record-form, #start-camera-form{
     background-color: #1CA3EC;
     color: white;
 }
