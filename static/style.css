@@ -131,6 +131,12 @@ button {
     color: white;
 }
 
+#save-record-form{
+    background-color: #3b8bf3;
+    color: white;
+}
+
+
 #start-camera:hover, #take-photo:hover, #save-record:hover {
     background-color: #FF6600;
 }
