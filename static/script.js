@@ -730,13 +730,36 @@ function eliminarElemento(button) {
 // VALIDACIÓN DEL FORMULARIO
 // ========================================
 function validarFormulario() {
+    // Verificar que al menos UNA sección tenga datos
     const actFinalizadas = recopilarActividadesFinalizadas();
+    const actPendientes = recopilarActividadesPendientes();
+    const actFacturar = recopilarActividadesFacturar();
+    const docSeguridad = recopilarDocSeguridad();
+    const docAmbiental = recopilarDocAmbiental();
+    const docCalidad = recopilarDocCalidad();
     
-    if (actFinalizadas.length === 0) {
-        alert('⚠️ Debes agregar al menos una actividad finalizada');
+    // Contar cuántas secciones tienen datos
+    const seccionesConDatos = [
+        actFinalizadas.length > 0,
+        actPendientes.length > 0,
+        actFacturar.length > 0,
+        docSeguridad.length > 0,
+        docAmbiental.length > 0,
+        docCalidad.length > 0
+    ].filter(Boolean).length;
+    
+    if (seccionesConDatos === 0) {
+        alert('⚠️ Debes llenar al menos UNA sección del formulario:\n\n' +
+              '• Actividades finalizadas\n' +
+              '• Actividades pendientes\n' +
+              '• Actividades por facturar\n' +
+              '• Documentación de Seguridad\n' +
+              '• Documentación Ambiental\n' +
+              '• Documentación de Calidad');
         return false;
     }
     
+    console.log(`✅ Validación OK: ${seccionesConDatos} sección(es) con datos`);
     return true;
 }
 
@@ -744,83 +767,134 @@ function validarFormulario() {
 // GUARDAR REGISTRO (ENVIAR A SYNCHRO)
 // ========================================
 async function saveRecordForm() {
-    console.log('💾 Iniciando guardado...');
+    console.log('💾 Iniciando guardado de registro...');
     
-    // Validar
-    if (!validarFormulario()) {
-        return;
-    }
+    const button = document.getElementById('save-record-form');
     
     try {
-        // Mostrar loader
-        const button = document.getElementById('save-record-form');
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        // 1. Validar que haya al menos UNA sección con datos
+        if (!validarFormulario()) {
+            console.log('⚠️ Validación falló');
+            return;
+        }
         
-        // Recopilar todos los datos
+        // 2. Cambiar botón
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            button.style.backgroundColor = '#ccc';
+        }
+        
+        // 3. Recopilar TODAS las secciones
+        const actFinalizadas = recopilarActividadesFinalizadas();
+        const actPendientes = recopilarActividadesPendientes();
+        const actFacturar = recopilarActividadesFacturar();
+        const docSeguridad = recopilarDocSeguridad();
+        const docAmbiental = recopilarDocAmbiental();
+        const docCalidad = recopilarDocCalidad();
+        const fotos = capturedPhotos.filter(f => f !== null);
+        const videos = capturedVideos.filter(v => v !== null);
+        
+        // 4. Construir objeto con SOLO las secciones que tienen datos
         const datos = {
-            // Datos básicos (readonly)
-            codigo_proyecto: document.getElementById('codigo_proyecto').value,
-            contratista: document.getElementById('contratista').value,
-            contrato: document.getElementById('contrato').value,
-            
-            // Sección 1
-            actividades_finalizadas: recopilarActividadesFinalizadas(),
-            
-            // Sección 2
-            actividades_pendientes: recopilarActividadesPendientes(),
-            
-            // Sección 3
-            actividades_facturar: recopilarActividadesFacturar(),
-            
-            // Sección 4
-            documentacion_seguridad: recopilarDocSeguridad(),
-            
-            // Sección 5
-            documentacion_ambiental: recopilarDocAmbiental(),
-            
-            // Sección 6
-            documentacion_calidad: recopilarDocCalidad(),
-            
-            // Multimedia
-            fotos: capturedPhotos.filter(f => f !== null),
-            videos: capturedVideos.filter(v => v !== null),
-            
-            // Metadata
+            // Datos básicos (siempre se envían)
+            codigo_proyecto: document.getElementById('codigo_proyecto')?.value || '',
+            contratista: document.getElementById('contratista')?.value || '',
+            contrato: document.getElementById('contrato')?.value || '',
             fecha_registro: new Date().toISOString()
         };
         
-        console.log('📦 Datos a enviar:', datos);
+        // Agregar solo las secciones que tienen datos
+        if (actFinalizadas.length > 0) {
+            datos.actividades_finalizadas = actFinalizadas;
+        }
         
-        // Enviar al backend
+        if (actPendientes.length > 0) {
+            datos.actividades_pendientes = actPendientes;
+        }
+        
+        if (actFacturar.length > 0) {
+            datos.actividades_facturar = actFacturar;
+        }
+        
+        if (docSeguridad.length > 0) {
+            datos.documentacion_seguridad = docSeguridad;
+        }
+        
+        if (docAmbiental.length > 0) {
+            datos.documentacion_ambiental = docAmbiental;
+        }
+        
+        if (docCalidad.length > 0) {
+            datos.documentacion_calidad = docCalidad;
+        }
+        
+        if (fotos.length > 0) {
+            datos.fotos = fotos;
+        }
+        
+        if (videos.length > 0) {
+            datos.videos = videos;
+        }
+        
+        console.log('📦 Datos a enviar:', datos);
+        console.log('📊 Secciones incluidas:', Object.keys(datos).filter(k => Array.isArray(datos[k])));
+        
+        // 5. Enviar al backend
         const response = await fetch('/guardar-registro', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(datos)
         });
         
-        const result = await response.json();
+        console.log('📡 Respuesta status:', response.status);
         
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error del servidor:', errorText);
+            throw new Error(`Error del servidor (${response.status}): ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('📥 Resultado:', result);
+        
+        // 6. Verificar resultado
         if (result.success) {
-            // Éxito
-            mostrarMensajeExito(result);
+            console.log('✅ Guardado exitoso');
+            
+            let mensaje = '✅ Registro guardado exitosamente!';
+            
+            if (result.form_id) {
+                mensaje += `\n📝 Formulario Synchro: ${result.form_id}`;
+            }
+            
+            if (result.attachments_subidos > 0) {
+                mensaje += `\n📎 ${result.attachments_subidos} archivo(s) adjunto(s)`;
+            }
+            
+            alert(mensaje);
             
             // Limpiar formulario después de 2 segundos
             setTimeout(() => {
                 limpiarFormulario();
             }, 2000);
         } else {
-            throw new Error(result.error || 'Error desconocido');
+            throw new Error(result.error || 'Error desconocido al guardar');
         }
         
     } catch (error) {
-        console.error('❌ Error:', error);
-        alert(`Error al guardar: ${error.message}`);
+        console.error('❌ Error en saveRecordForm:', error);
+        console.error('Stack trace:', error.stack);
+        alert(`Error al guardar el registro:\n${error.message}`);
     } finally {
-        // Restaurar botón
-        const button = document.getElementById('save-record-form');
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-save"></i> Guardar registro';
+        // 7. Restaurar botón
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-save"></i> Guardar registro';
+            button.style.backgroundColor = '#FF6600';
+        }
     }
 }
 

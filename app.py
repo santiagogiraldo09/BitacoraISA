@@ -278,6 +278,24 @@ def guardar_formulario():
         data = request.json
         print("📥 Datos recibidos del frontend")
         
+        # Validar que al menos venga UNA sección con datos
+        secciones_con_datos = sum([
+            1 if data.get('actividades_finalizadas') else 0,
+            1 if data.get('actividades_pendientes') else 0,
+            1 if data.get('actividades_facturar') else 0,
+            1 if data.get('documentacion_seguridad') else 0,
+            1 if data.get('documentacion_ambiental') else 0,
+            1 if data.get('documentacion_calidad') else 0
+        ])
+        
+        if secciones_con_datos == 0:
+            return jsonify({
+                'success': False,
+                'error': 'Debes llenar al menos una sección del formulario'
+            }), 400
+        
+        print(f"✅ Validación OK: {secciones_con_datos} sección(es) con datos")
+        
         # 1. Obtener token
         token = obtener_token_synchro()
         if not token:
@@ -286,12 +304,12 @@ def guardar_formulario():
                 'error': 'No se pudo obtener token de Synchro'
             }), 500
         
-        # 2. Enviar actividades
+        # 2. Enviar actividades a Synchro
         resultado = enviar_actividades_synchro(token, data)
         if not resultado['success']:
             return jsonify(resultado), 500
         
-        # 3. Subir fotos/videos
+        # 3. Subir fotos/videos si existen
         fotos = data.get('fotos', [])
         videos = data.get('videos', [])
         attachments_subidos = 0
@@ -304,11 +322,14 @@ def guardar_formulario():
             'success': True,
             'mensaje': 'Registro guardado en Synchro exitosamente',
             'form_id': SYNCHRO_CONFIG['form_id'],
-            'attachments_subidos': attachments_subidos
+            'attachments_subidos': attachments_subidos,
+            'secciones_guardadas': secciones_con_datos
         }), 200
         
     except Exception as e:
         print(f"❌ Error en /guardar-formulario: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'error': str(e)
