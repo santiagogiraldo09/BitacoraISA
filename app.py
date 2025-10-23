@@ -659,6 +659,79 @@ def login():
 def index():
     return render_template('index.html')
 
+def obtener_token():
+    """Obtiene un token de autenticación de Bentley."""
+    try:
+        payload = {
+            'grant_type': 'client_credentials',
+            'client_id': SYNCHRO_CONFIG['client_id'],
+            'client_secret': SYNCHRO_CONFIG['client_secret'],
+            'scope': 'itwin-platform'
+        }
+        response = requests.post(SYNCHRO_CONFIG['token_url'], data=payload)
+        
+        if response.status_code == 200:
+            return response.json()['access_token']
+        else:
+            print(f"Error al obtener token (código {response.status_code}): {response.text}")
+            return None
+    except Exception as e:
+        print(f"Excepción al obtener token: {str(e)}")
+        return None
+    
+def obtener_id_por_numero(token, numero):
+    """Busca un formulario por su número y retorna su ID y el objeto 'form' completo."""
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Accept': 'application/vnd.bentley.itwin-platform.v2+json',
+        'Prefer': 'return=representation'
+    }
+    
+    url = SYNCHRO_CONFIG['forms_url']
+    params = {
+        'iTwinId': SYNCHRO_CONFIG['itwin_id'],
+        '$top': 50  # Obtener de 50 en 50
+    }
+    
+    while True:
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            
+            if response.status_code != 200:
+                print(f"Error al buscar formulario (código {response.status_code}): {response.text}")
+                return None, None
+
+            data = response.json()
+            forms_data = data.get('forms', data) # A veces la respuesta no viene anidada
+            
+            forms_list = forms_data.get('formDataInstances', [])
+            
+            for form in forms_list:
+                if form.get('number') == numero:
+                    # ¡Encontrado! Retorna el ID y el objeto
+                    return form.get('id'), form
+            
+            # Lógica de paginación
+            next_link_data = forms_data.get('_links', {}).get('next')
+            if not next_link_data:
+                break # No hay más páginas
+            
+            # Extraer el 'continuationToken' para la siguiente página
+            next_href = next_link_data.get('href', '')
+            if 'continuationToken=' in next_href:
+                params['continuationToken'] = next_href.split('continuationToken=')[-1]
+                params.pop('$top', None) # Ya no es necesario
+            else:
+                break # No se pudo encontrar el token de paginación
+                
+        except Exception as e:
+            print(f"Excepción al buscar formulario: {str(e)}")
+            return None, None
+
+    # Si sale del bucle sin encontrarlo
+    print(f"No se encontró ningún formulario con el número: {numero}")
+    return None, None
+
 @app.route('/formulario-synchro')
 def formulario_synchro():
     if 'user_id' not in session:
