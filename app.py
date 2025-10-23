@@ -390,6 +390,10 @@ def login():
 def index():
     return render_template('index.html')
 
+@app.route('/formulario')
+def indexFormulario():
+    return render_template('indexFormulario.html')
+
 @app.route('/registros')
 def registros():
     if 'user_id' not in session:
