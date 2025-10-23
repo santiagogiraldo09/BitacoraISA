@@ -101,7 +101,7 @@ function addDynamicField(templateId, containerId) {
 
     // Asignar listeners a los nuevos botones de micrófono
     clone.querySelectorAll('.mic-button').forEach(button => {
-        button.addEventListener('click', ()_=> {
+        button.addEventListener('click', ()=> {
             const input = button.closest('.input-with-icon').querySelector('.form-input');
             startVoiceInput(input.id, button);
         });
