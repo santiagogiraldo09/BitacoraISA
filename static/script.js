@@ -743,7 +743,7 @@ function validarFormulario() {
 // ========================================
 // GUARDAR REGISTRO (ENVIAR A SYNCHRO)
 // ========================================
-async function saveRecord() {
+async function saveRecordForm() {
     console.log('💾 Iniciando guardado...');
     
     // Validar
