@@ -15,6 +15,13 @@ let audioFieldChunks = [];
 let isFieldRecording = false;
 let currentTargetInput = null;
 
+let contadorFinalizadas = 0;
+let contadorPendientes = 0;
+let contadorFacturar = 0;
+let contadorSeguridad = 0;
+let contadorAmbiental = 0;
+let contadorCalidad = 0;
+
 // =================================================================
 //          INICIALIZACIÓN DE EVENTOS
 // =================================================================
@@ -129,6 +136,363 @@ function updateRecordingUI(isRecordingActive) {
     document.getElementById('stop-record-btn').style.display = isRecordingActive ? 'flex' : 'none';
     document.getElementById('take-photo').style.display = isRecordingActive ? 'none' : 'flex';
 }
+
+function agregarActividadFinalizada() {
+    const container = document.getElementById('container-act-finalizadas');
+    const id = contadorFinalizadas++;
+    
+    const html = `
+        <div class="actividad-item" data-id="${id}">
+            <input type="number" class="act-item" placeholder="Ítem">
+            <input type="text" class="act-descripcion" placeholder="Descripción">
+            <textarea class="act-observaciones" placeholder="Observaciones"></textarea>
+            <button onclick="eliminarElemento(this)">Eliminar</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function agregarActividadPendiente() {
+    const container = document.getElementById('container-act-pendientes');
+    const id = contadorPendientes++;
+    
+    const html = `
+        <div class="actividad-item" data-id="${id}" data-tipo="pendiente">
+            <div class="form-group">
+                <label>Ítem</label>
+                <input type="number" class="act-item" placeholder="Número de ítem">
+            </div>
+            <div class="form-group">
+                <label>Descripción *</label>
+                <input type="text" class="act-descripcion" required placeholder="Descripción de la actividad">
+            </div>
+            <div class="form-group">
+                <label>Pendiente generado</label>
+                <input type="text" class="act-pendiente-generado" placeholder="Tipo de pendiente">
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <textarea class="act-observaciones" rows="2" placeholder="Observaciones"></textarea>
+            </div>
+            <button type="button" class="remove-button" onclick="eliminarElemento(this)">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function agregarActividadFacturar() {
+    const container = document.getElementById('container-act-facturar');
+    const id = contadorFacturar++;
+    
+    const html = `
+        <div class="actividad-item" data-id="${id}" data-tipo="facturar">
+            <div class="form-group">
+                <label>Ítem</label>
+                <input type="number" class="act-item" placeholder="Número de ítem">
+            </div>
+            <div class="form-group">
+                <label>Descripción *</label>
+                <input type="text" class="act-descripcion" required placeholder="Descripción">
+            </div>
+            <div class="form-group">
+                <label>Cantidad contractual</label>
+                <input type="number" step="0.01" class="act-cant-contractual" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>Cantidad facturada</label>
+                <input type="number" step="0.01" class="act-cant-facturada" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>Cantidad pendiente por facturar</label>
+                <input type="number" step="0.01" class="act-cant-pendiente" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>Observación</label>
+                <textarea class="act-observaciones" rows="2" placeholder="Observaciones"></textarea>
+            </div>
+            <button type="button" class="remove-button" onclick="eliminarElemento(this)">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function agregarDocSeguridad() {
+    const container = document.getElementById('container-doc-seguridad');
+    const id = contadorSeguridad++;
+    
+    const html = `
+        <div class="actividad-item" data-id="${id}" data-tipo="doc-seguridad">
+            <div class="form-group">
+                <label>Documento *</label>
+                <input type="text" class="doc-nombre" required placeholder="Nombre del documento">
+            </div>
+            <div class="form-group">
+                <label>Pendiente generado</label>
+                <input type="text" class="doc-pendiente" placeholder="Pendiente">
+            </div>
+            <div class="form-group">
+                <label>Fecha de entrega</label>
+                <input type="date" class="doc-fecha">
+            </div>
+            <div class="form-group">
+                <label>Responsable</label>
+                <input type="text" class="doc-responsable" placeholder="Responsable">
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <textarea class="doc-observaciones" rows="2" placeholder="Observaciones"></textarea>
+            </div>
+            <button type="button" class="remove-button" onclick="eliminarElemento(this)">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function agregarDocAmbiental() {
+    const container = document.getElementById('container-doc-ambiental');
+    const id = contadorAmbiental++;
+    
+    const html = `
+        <div class="actividad-item" data-id="${id}" data-tipo="doc-ambiental">
+            <div class="form-group">
+                <label>Documento *</label>
+                <input type="text" class="doc-nombre" required placeholder="Nombre del documento">
+            </div>
+            <div class="form-group">
+                <label>Pendiente generado</label>
+                <input type="text" class="doc-pendiente" placeholder="Pendiente">
+            </div>
+            <div class="form-group">
+                <label>Fecha de entrega</label>
+                <input type="date" class="doc-fecha">
+            </div>
+            <div class="form-group">
+                <label>Responsable</label>
+                <input type="text" class="doc-responsable" placeholder="Responsable">
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <textarea class="doc-observaciones" rows="2" placeholder="Observaciones"></textarea>
+            </div>
+            <button type="button" class="remove-button" onclick="eliminarElemento(this)">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function agregarDocCalidad() {
+    const container = document.getElementById('container-doc-calidad');
+    const id = contadorCalidad++;
+    
+    const html = `
+        <div class="actividad-item" data-id="${id}" data-tipo="doc-calidad">
+            <div class="form-group">
+                <label>Documento *</label>
+                <input type="text" class="doc-nombre" required placeholder="Nombre del documento">
+            </div>
+            <div class="form-group">
+                <label>Pendiente generado</label>
+                <input type="text" class="doc-pendiente" placeholder="Pendiente">
+            </div>
+            <div class="form-group">
+                <label>Fecha de entrega</label>
+                <input type="date" class="doc-fecha">
+            </div>
+            <div class="form-group">
+                <label>Responsable</label>
+                <input type="text" class="doc-responsable" placeholder="Responsable">
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <textarea class="doc-observaciones" rows="2" placeholder="Observaciones"></textarea>
+            </div>
+            <button type="button" class="remove-button" onclick="eliminarElemento(this)">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+
+// ========================================
+// FUNCIÓN PARA ELIMINAR ELEMENTOS
+// ========================================
+function eliminarElemento(button) {
+    const item = button.closest('.actividad-item');
+    item.remove();
+}
+
+// ========================================
+// VALIDACIÓN DEL FORMULARIO
+// ========================================
+function validarFormulario() {
+    const actFinalizadas = recopilarActividadesFinalizadas();
+    
+    if (actFinalizadas.length === 0) {
+        alert('⚠️ Debes agregar al menos una actividad finalizada');
+        return false;
+    }
+    
+    return true;
+}
+
+// ========================================
+// GUARDAR REGISTRO (ENVIAR A SYNCHRO)
+// ========================================
+async function saveRecord() {
+    console.log('💾 Iniciando guardado...');
+    
+    // Validar
+    if (!validarFormulario()) {
+        return;
+    }
+    
+    try {
+        // Mostrar loader
+        const button = document.getElementById('save-record');
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        
+        // Recopilar todos los datos
+        const datos = {
+            // Datos básicos (readonly)
+            codigo_proyecto: document.getElementById('codigo_proyecto').value,
+            contratista: document.getElementById('contratista').value,
+            contrato: document.getElementById('contrato').value,
+            
+            // Sección 1
+            actividades_finalizadas: recopilarActividadesFinalizadas(),
+            
+            // Sección 2
+            actividades_pendientes: recopilarActividadesPendientes(),
+            
+            // Sección 3
+            actividades_facturar: recopilarActividadesFacturar(),
+            
+            // Sección 4
+            documentacion_seguridad: recopilarDocSeguridad(),
+            
+            // Sección 5
+            documentacion_ambiental: recopilarDocAmbiental(),
+            
+            // Sección 6
+            documentacion_calidad: recopilarDocCalidad(),
+            
+            // Multimedia
+            fotos: capturedPhotos.filter(f => f !== null),
+            videos: capturedVideos.filter(v => v !== null),
+            
+            // Metadata
+            fecha_registro: new Date().toISOString()
+        };
+        
+        console.log('📦 Datos a enviar:', datos);
+        
+        // Enviar al backend
+        const response = await fetch('/guardar-registro', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(datos)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Éxito
+            mostrarMensajeExito(result);
+            
+            // Limpiar formulario después de 2 segundos
+            setTimeout(() => {
+                limpiarFormulario();
+            }, 2000);
+        } else {
+            throw new Error(result.error || 'Error desconocido');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error:', error);
+        alert(`Error al guardar: ${error.message}`);
+    } finally {
+        // Restaurar botón
+        const button = document.getElementById('save-record');
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-save"></i> Guardar registro';
+    }
+}
+
+function mostrarMensajeExito(result) {
+    const div = document.getElementById('successMessage');
+    
+    let mensaje = '✅ Registro guardado exitosamente en Synchro Control!';
+    
+    if (result.form_id) {
+        mensaje += `<br>📝 Formulario ID: ${result.form_id}`;
+    }
+    
+    if (result.attachments_subidos > 0) {
+        mensaje += `<br>📎 ${result.attachments_subidos} archivos adjuntos`;
+    }
+    
+    div.innerHTML = `<p style="color: green; font-weight: bold; padding: 15px; background: #d4edda; border-radius: 5px;">${mensaje}</p>`;
+    div.style.display = 'block';
+    
+    setTimeout(() => {
+        div.style.display = 'none';
+    }, 5000);
+}
+
+function limpiarFormulario() {
+    // Limpiar todos los contenedores
+    document.getElementById('container-act-finalizadas').innerHTML = '';
+    document.getElementById('container-act-pendientes').innerHTML = '';
+    document.getElementById('container-act-facturar').innerHTML = '';
+    document.getElementById('container-doc-seguridad').innerHTML = '';
+    document.getElementById('container-doc-ambiental').innerHTML = '';
+    document.getElementById('container-doc-calidad').innerHTML = '';
+    
+    // Reiniciar contadores
+    contadorFinalizadas = 0;
+    contadorPendientes = 0;
+    contadorFacturar = 0;
+    contadorSeguridad = 0;
+    contadorAmbiental = 0;
+    contadorCalidad = 0;
+    
+    // Limpiar fotos y videos
+    capturedPhotos.length = 0;
+    capturedVideos.length = 0;
+    document.getElementById('photoThumbnails').innerHTML = '';
+    document.getElementById('videoThumbnails').innerHTML = '';
+    
+    // Agregar una actividad finalizada por defecto
+    agregarActividadFinalizada();
+    
+    // Ocultar cámara
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
+    document.getElementById('camera-container').style.display = 'none';
+    document.getElementById('take-photo').style.display = 'none';
+    
+    console.log('🧹 Formulario limpiado');
+}
+
 
 // =================================================================
 //          FUNCIONES PARA ADJUNTAR ARCHIVOS

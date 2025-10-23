@@ -3,31 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Bitácora</title>
-    <link rel="icon" href="{{ url_for('static', filename='logocompensar.png') }}" type="image/x-icon">
+    <title>Registro de Actividades</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
     .photo-thumbnail-wrapper {
-        display: flex; /* 1. Cambiamos a Flexbox */
-        flex-direction: column; /* 2. Apilamos los elementos internos verticalmente */
-        align-items: center; /* 3. Centramos los elementos internos horizontalmente (en el eje cruzado) */
-        justify-content: center; /* Opcional: Centra verticalmente si hay espacio extra */
-        width: 200px; /* Mantener el ancho fijo */
+        display: inline-block;
+        text-align: center;
+        width: 200px;
         margin-top: 10px;
-        border: 1px solid #ddd; /* Añadir un borde sutil para visualización */
-        border-radius: 8px; /* Bordes redondeados */
-        padding: 5px; /* Pequeño relleno interno */
-        background-color: #f9f9f9; /* Fondo claro */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra suave */
     }
 
     .thumbnail-image {
-        width: 100%; /* Ocupa todo el ancho disponible del wrapper */
-        height: 150px; /* Establece una altura fija para todas las miniaturas */
-        object-fit: cover; /* Recorta la imagen/video para cubrir el espacio sin distorsión */
-        border-radius: 4px; /* Un poco de borde redondeado para la imagen/video */
-        margin-bottom: 5px; /* Espacio entre la imagen/video y los botones de control */
+        width: 100%;
+        height: auto;
+        border: 1px solid #ccc;
+        border-radius: 4px;
     }
 
     .photo-controls {
@@ -48,132 +40,356 @@
         height: 32px;
         line-height: 1;
     }
+
+    .section-header {
+        background-color: #f8b126;
+        color: white;
+        padding: 12px;
+        margin: 20px 0 10px 0;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header-readonly {
+        background-color: #6c757d;
+        color: white;
+        padding: 12px;
+        margin: 20px 0 10px 0;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .add-button {
+        background: white;
+        color: #f8b126;
+        padding: 5px 12px;
+        border-radius: 3px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .add-button:hover {
+        background: #f0f0f0;
+    }
+
+    .actividad-item {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .actividad-item .form-group {
+        margin-bottom: 12px;
+    }
+
+    .actividad-item label {
+        font-size: 13px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .actividad-item input,
+    .actividad-item textarea {
+        width: 95%;
+        font-size: 14px;
+    }
+
+    .remove-button {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-top: 5px;
+        width: 100%;
+    }
+
+    .remove-button:hover {
+        background-color: #c0392b;
+    }
+
+    .readonly-field {
+        background-color: #e9ecef !important;
+        cursor: not-allowed;
+    }
+
+    .collapsible-section {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+
+    .section-toggle {
+        width: 100%;
+        background-color: #f8b126;
+        color: white;
+        padding: 12px;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        font-weight: bold;
+        font-size: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-toggle:hover {
+        background-color: #e9c784;
+    }
+
+    .section-content {
+        padding: 15px;
+        display: none;
+    }
+
+    .section-content.active {
+        display: block;
+    }
+
+    .section-number {
+        background: white;
+        color: #f8b126;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 8px;
+        font-weight: bold;
+    }
 </style>
 </head>
 <body>
     <div id="app">
+        <!-- Logo y encabezado -->
         <header>
             <div id="logo-container">
-                <img src="{{ url_for('static', filename='logocompensar.png') }}" id="logo" alt="Logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" id="logo" alt="Logo">
             </div>
             <h1>Registro de Actividades</h1>
         </header>
 
-        <input type="hidden" id="project-name">
-
+        <!-- Contenedor del formulario -->
         <div id="form-container">
             
+            <!-- DATOS GENERALES (READONLY) -->
+            <div class="section-header-readonly">
+                📋 Datos del Proyecto
+            </div>
+
             <div class="form-group">
-                <label for="question_0">Tipo de informe:</label>
-                <div class="input-with-icon">
-                    <input type="text" id="question_0">
-                    <button class="record-btn" data-target-input="question_0" title="Grabar respuesta">
-                        <i class="fas fa-microphone"></i>
+                <label for="codigo_proyecto">Código Proyecto</label>
+                <input type="text" id="codigo_proyecto" value="{{ proyecto.codigo }}" readonly class="readonly-field">
+            </div>
+
+            <div class="form-group">
+                <label for="contratista">Contratista</label>
+                <input type="text" id="contratista" value="{{ proyecto.contratista }}" readonly class="readonly-field">
+            </div>
+
+            <div class="form-group">
+                <label for="contrato">Número de Contrato</label>
+                <input type="text" id="contrato" value="{{ proyecto.contrato }}" readonly class="readonly-field">
+            </div>
+
+            <!-- SECCIÓN 1: ACTIVIDADES FINALIZADAS -->
+            <div class="collapsible-section">
+                <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                    <span>
+                        <span class="section-number">1</span>
+                        Actividades finalizadas y validadas por Control de Obra
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="section-content active">
+                    <button type="button" class="add-button" onclick="agregarActividadFinalizada()" style="width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-plus"></i> Agregar Actividad
                     </button>
-                    <button class="stop-btn" data-target-input="question_0" title="Detener grabación" style="display: none;">
-                        <i class="fas fa-stop"></i>
-                    </button>
+                    <div id="container-act-finalizadas"></div>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="question_1">Sede:</label>
-                <div class="input-with-icon">
-                    <input type="text" id="question_1">
-                    <button class="record-btn" data-target-input="question_1" title="Grabar respuesta">
-                        <i class="fas fa-microphone"></i>
+
+            <!-- SECCIÓN 2: ACTIVIDADES PENDIENTES POR CULMINAR -->
+            <div class="collapsible-section">
+                <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                    <span>
+                        <span class="section-number">2</span>
+                        Actividades pendientes por culminar
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="section-content">
+                    <button type="button" class="add-button" onclick="agregarActividadPendiente()" style="width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-plus"></i> Agregar Actividad
                     </button>
-                    <button class="stop-btn" data-target-input="question_1" title="Detener grabación" style="display: none;">
-                        <i class="fas fa-stop"></i>
-                    </button>
+                    <div id="container-act-pendientes"></div>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="question_2">Repuestos utilizados:</label>
-                <div class="input-with-icon">
-                    <input type="text" id="question_2">
-                    <button class="record-btn" data-target-input="question_2" title="Grabar respuesta">
-                        <i class="fas fa-microphone"></i>
+
+            <!-- SECCIÓN 3: ACTIVIDADES PENDIENTES POR FACTURAR -->
+            <div class="collapsible-section">
+                <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                    <span>
+                        <span class="section-number">3</span>
+                        Actividades pendientes por facturar
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="section-content">
+                    <button type="button" class="add-button" onclick="agregarActividadFacturar()" style="width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-plus"></i> Agregar Actividad
                     </button>
-                    <button class="stop-btn" data-target-input="question_2" title="Detener grabación" style="display: none;">
-                        <i class="fas fa-stop"></i>
-                    </button>
+                    <div id="container-act-facturar"></div>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="question_3">Repuestos a cotizar:</label>
-                <div class="input-with-icon">
-                    <input type="text" id="question_3">
-                    <button class="record-btn" data-target-input="question_3" title="Grabar respuesta">
-                        <i class="fas fa-microphone"></i>
+
+            <!-- SECCIÓN 4: DOCUMENTACIÓN SEGURIDAD Y SALUD -->
+            <div class="collapsible-section">
+                <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                    <span>
+                        <span class="section-number">4</span>
+                        Documentación pendiente por entregar de Seguridad y Salud
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="section-content">
+                    <button type="button" class="add-button" onclick="agregarDocSeguridad()" style="width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-plus"></i> Agregar Documento
                     </button>
-                    <button class="stop-btn" data-target-input="question_3" title="Detener grabación" style="display: none;">
-                        <i class="fas fa-stop"></i>
-                    </button>
+                    <div id="container-doc-seguridad"></div>
                 </div>
             </div>
-            
+
+            <!-- SECCIÓN 5: DOCUMENTACIÓN GESTIÓN AMBIENTAL -->
+            <div class="collapsible-section">
+                <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                    <span>
+                        <span class="section-number">5</span>
+                        Documentación pendiente por entregar de Gestión Ambiental y Social
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="section-content">
+                    <button type="button" class="add-button" onclick="agregarDocAmbiental()" style="width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-plus"></i> Agregar Documento
+                    </button>
+                    <div id="container-doc-ambiental"></div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 6: DOCUMENTACIÓN CALIDAD -->
+            <div class="collapsible-section">
+                <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                    <span>
+                        <span class="section-number">6</span>
+                        Documentación pendiente por entregar de Calidad del Proyecto
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="section-content">
+                    <button type="button" class="add-button" onclick="agregarDocCalidad()" style="width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-plus"></i> Agregar Documento
+                    </button>
+                    <div id="container-doc-calidad"></div>
+                </div>
+            </div>
+
+            <!-- EVIDENCIA FOTOGRÁFICA Y VIDEO -->
+            <div class="section-header">
+                📷 Evidencia Fotográfica y Videos
+            </div>
+
+            <div id="camera-container">
+                <div class="centrar">
+                    <video id="videoElement" autoplay playsinline muted></video>
+                </div>
+                <canvas id="photoCanvas" style="display:none;"></canvas>
+                
+                <!-- Miniaturas de fotos -->
+                <div id="photoThumbnails" class="photo-thumbnails"></div>
+
+                <!-- Miniaturas de videos -->
+                <div id="videoThumbnails" class="photo-thumbnails" style="margin-top: 15px;"></div>
+            </div>
+
             <div class="centrar">
-                <button id="activate-camera-btn" class="activate-camera-button">
-                    <i class="fas fa-camera"></i> Activar Cámara para Evidencia
+                <div class="button-row">
+                    <button id="start-camera" onclick="startCamera()">
+                        <i class="fas fa-camera"></i> Iniciar cámara
+                    </button>
+                    <button id="take-photo" class="round-button" style="display:none;" onclick="takePhoto()" title="Tomar Foto">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    
+                    <button id="start-record-btn" class="round-button" style="display:none;" title="Grabar Video">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button id="stop-record-btn" class="round-button" style="display:none; background-color: #e74c3c;" title="Detener Grabación">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
+
+                <div class="button-row">
+                    <button id="attach-video-clip" class="clip-button" onclick="document.getElementById('video-file-input').click()" title="Adjuntar video">
+                        🎥
+                    </button>
+                    <input type="file" id="video-file-input" class="file-input" accept="video/*" style="display:none;">
+                    
+                    <button id="attach-clip" class="clip-button" onclick="document.getElementById('file-input').click()" title="Adjuntar imagen">
+                        📎
+                    </button>
+                    <input type="file" id="file-input" class="file-input" accept="image/*" multiple style="display:none;">
+                </div>
+
+                <button id="save-record" onclick="saveRecord()">
+                    <i class="fas fa-save"></i> Guardar registro
                 </button>
             </div>
 
-            <div class="attachment-controls">
-                <label>Adjuntar Evidencia desde el dispositivo:</label>
-                <div class="button-row">
-                    <button id="attach-clip" class="clip-button" onclick="document.getElementById('file-input').click()" title="Adjuntar imagen">📎</button>
-                    <input type="file" id="file-input" class="file-input" accept="image/*" multiple style="display:none;">
-                    
-                    <button id="attach-video-clip" class="clip-button" onclick="document.getElementById('video-file-input').click()" title="Adjuntar video">🎥</button>
-                    <input type="file" id="video-file-input" class="file-input" accept="video/*" style="display:none;">
-                </div>
-            </div>
-
-            <div id="camera-container" style="display: none;">
-                <video id="videoElement" autoplay playsinline muted></video>
-                <canvas id="photoCanvas" style="display:none;"></canvas>
-            </div>
-            
-            <div class="action-buttons-wrapper" style="display: none;">
-                <div class="button-row">
-                    <button id="take-photo" class="round-button" onclick="takePhoto()" title="Tomar Foto">
-                        <i class="fas fa-camera"></i>
-                    </button>
-                    <button id="start-record-btn" class="round-button" title="Grabar Video">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    <button id="stop-record-btn" class="round-button" title="Detener Grabación">
-                        <i class="fas fa-stop"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div id="gallery-container">
-                <div id="photoThumbnails" class="photo-thumbnails"></div>
-                <div id="videoThumbnails" class="photo-thumbnails"></div>
-            </div>
-            
-            <div class="centrar">
-                <button id="save-record" onclick="saveRecord()">Guardar registro</button>
-            </div>
-
-            <input type="hidden" id="base64-photo">
+            <!-- Mensaje de éxito -->
             <div id="successMessage" style="display:none;" class="centrar"></div>
-            <div id="loading-overlay" class="loading-overlay">
-                <div class="spinner"></div>
-            </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const projectName = urlParams.get('project');
-            if (projectName) {
-                document.getElementById('project-name').value = projectName;
+        // Función para colapsar/expandir secciones
+        function toggleSection(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            content.classList.toggle('active');
+            
+            if (content.classList.contains('active')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
             }
+        }
+
+        // Inicializar primera sección abierta al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Página cargada");
+            
+            // Agregar una actividad finalizada por defecto
+            agregarActividadFinalizada();
         });
     </script>
 </body>
