@@ -893,7 +893,7 @@ async function saveRecordForm() {
         if (button) {
             button.disabled = false;
             button.innerHTML = '<i class="fas fa-save"></i> Guardar registro';
-            button.style.backgroundColor = '#FF6600';
+            button.style.backgroundColor = '#1CA3EC';
         }
     }
 }
