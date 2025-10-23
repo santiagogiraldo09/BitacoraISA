@@ -142,11 +142,37 @@ function agregarActividadFinalizada() {
     const id = contadorFinalizadas++;
     
     const html = `
-        <div class="actividad-item" data-id="${id}">
-            <input type="number" class="act-item" placeholder="Ítem">
-            <input type="text" class="act-descripcion" placeholder="Descripción">
-            <textarea class="act-observaciones" placeholder="Observaciones"></textarea>
-            <button onclick="eliminarElemento(this)">Eliminar</button>
+        <div class="actividad-item" data-id="${id}" data-tipo="finalizada">
+            <div class="form-group">
+                <label>Ítem</label>
+                <div class="input-with-mic">
+                    <input type="number" class="act-item" placeholder="Número de ítem">
+                    <button type="button" class="mic-button" onclick="iniciarReconocimientoVoz(this)">
+                        🎤
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Descripción *</label>
+                <div class="input-with-mic">
+                    <input type="text" class="act-descripcion" required placeholder="Descripción de la actividad">
+                    <button type="button" class="mic-button" onclick="iniciarReconocimientoVoz(this)">
+                        🎤
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <div class="input-with-mic textarea-wrapper">
+                    <textarea class="act-observaciones" rows="2" placeholder="Observaciones"></textarea>
+                    <button type="button" class="mic-button" onclick="iniciarReconocimientoVoz(this)">
+                        🎤
+                    </button>
+                </div>
+            </div>
+            <button type="button" class="remove-button" onclick="eliminarElemento(this)">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
         </div>
     `;
     

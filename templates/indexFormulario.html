@@ -195,6 +195,63 @@
         padding: 8px;
         width: 100%;
     }
+
+    /*--------------*/
+   /* Contenedor para input + micrófono */
+    .input-with-mic {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .input-with-mic input,
+    .input-with-mic textarea {
+        flex-grow: 1;
+        width: auto !important;
+    }
+
+    /* Botón de micrófono */
+    .mic-button {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 50%;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        color: #FF6600;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .mic-button:hover {
+        background-color: #e9e9e9;
+    }
+
+    .mic-button.recording {
+        background-color: #e74c3c;
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    /* Para textareas más altas */
+    .input-with-mic.textarea-wrapper {
+        align-items: flex-start;
+    }
+
+    .input-with-mic.textarea-wrapper .mic-button {
+        margin-top: 5px;
+    }
     
     /* Para móviles - que se pongan en vertical */
     @media (max-width: 768px) {
