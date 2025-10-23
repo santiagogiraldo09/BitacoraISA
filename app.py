@@ -646,7 +646,7 @@ def indexFormulario():
         'contratista': 'ABCD',
         'contrato': '001'
     }
-    return render_template('index.html', proyecto=proyecto)
+    return render_template('indexFormulario.html', proyecto=proyecto)
 
 @app.route('/registros')
 def registros():
