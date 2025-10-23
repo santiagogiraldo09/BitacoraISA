@@ -153,6 +153,27 @@ function agregarActividadFinalizada() {
     container.insertAdjacentHTML('beforeend', html);
 }
 
+function recopilarActividadesFinalizadas() {
+    const items = document.querySelectorAll('#container-act-finalizadas .actividad-item');
+    const actividades = [];
+    
+    items.forEach((item, index) => {
+        const itemNum = item.querySelector('.act-item').value || (index + 1);
+        const descripcion = item.querySelector('.act-descripcion').value.trim();
+        const observaciones = item.querySelector('.act-observaciones').value.trim();
+        
+        if (descripcion) {
+            actividades.push({
+                item: parseInt(itemNum),
+                descripcion: descripcion,
+                observaciones: observaciones
+            });
+        }
+    });
+    
+    return actividades;
+}
+
 function agregarActividadPendiente() {
     const container = document.getElementById('container-act-pendientes');
     const id = contadorPendientes++;
@@ -182,6 +203,29 @@ function agregarActividadPendiente() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+}
+
+function recopilarActividadesPendientes() {
+    const items = document.querySelectorAll('#container-act-pendientes .actividad-item');
+    const actividades = [];
+    
+    items.forEach((item, index) => {
+        const itemNum = item.querySelector('.act-item').value || (index + 1);
+        const descripcion = item.querySelector('.act-descripcion').value.trim();
+        const pendienteGenerado = item.querySelector('.act-pendiente-generado').value.trim();
+        const observaciones = item.querySelector('.act-observaciones').value.trim();
+        
+        if (descripcion) {
+            actividades.push({
+                item: parseInt(itemNum),
+                descripcion: descripcion,
+                pendiente_generado: pendienteGenerado,
+                observaciones: observaciones
+            });
+        }
+    });
+    
+    return actividades;
 }
 
 function agregarActividadFacturar() {
@@ -223,6 +267,33 @@ function agregarActividadFacturar() {
     container.insertAdjacentHTML('beforeend', html);
 }
 
+function recopilarActividadesFacturar() {
+    const items = document.querySelectorAll('#container-act-facturar .actividad-item');
+    const actividades = [];
+    
+    items.forEach((item, index) => {
+        const itemNum = item.querySelector('.act-item').value || (index + 1);
+        const descripcion = item.querySelector('.act-descripcion').value.trim();
+        const cantContractual = item.querySelector('.act-cant-contractual').value;
+        const cantFacturada = item.querySelector('.act-cant-facturada').value;
+        const cantPendiente = item.querySelector('.act-cant-pendiente').value;
+        const observaciones = item.querySelector('.act-observaciones').value.trim();
+        
+        if (descripcion) {
+            actividades.push({
+                item: parseInt(itemNum),
+                descripcion: descripcion,
+                cantidad_contractual: parseFloat(cantContractual) || 0,
+                cantidad_facturada: parseFloat(cantFacturada) || 0,
+                cantidad_pendiente: parseFloat(cantPendiente) || 0,
+                observacion: observaciones
+            });
+        }
+    });
+    
+    return actividades;
+}
+
 function agregarDocSeguridad() {
     const container = document.getElementById('container-doc-seguridad');
     const id = contadorSeguridad++;
@@ -256,6 +327,31 @@ function agregarDocSeguridad() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+}
+
+function recopilarDocSeguridad() {
+    const items = document.querySelectorAll('#container-doc-seguridad .actividad-item');
+    const documentos = [];
+    
+    items.forEach(item => {
+        const documento = item.querySelector('.doc-nombre').value.trim();
+        const pendiente = item.querySelector('.doc-pendiente').value.trim();
+        const fecha = item.querySelector('.doc-fecha').value;
+        const responsable = item.querySelector('.doc-responsable').value.trim();
+        const observaciones = item.querySelector('.doc-observaciones').value.trim();
+        
+        if (documento) {
+            documentos.push({
+                documento: documento,
+                pendiente_generado: pendiente,
+                fecha_entrega: fecha,
+                responsable: responsable,
+                observaciones: observaciones
+            });
+        }
+    });
+    
+    return documentos;
 }
 
 function agregarDocAmbiental() {
@@ -293,6 +389,31 @@ function agregarDocAmbiental() {
     container.insertAdjacentHTML('beforeend', html);
 }
 
+function recopilarDocAmbiental() {
+    const items = document.querySelectorAll('#container-doc-ambiental .actividad-item');
+    const documentos = [];
+    
+    items.forEach(item => {
+        const documento = item.querySelector('.doc-nombre').value.trim();
+        const pendiente = item.querySelector('.doc-pendiente').value.trim();
+        const fecha = item.querySelector('.doc-fecha').value;
+        const responsable = item.querySelector('.doc-responsable').value.trim();
+        const observaciones = item.querySelector('.doc-observaciones').value.trim();
+        
+        if (documento) {
+            documentos.push({
+                documento: documento,
+                pendiente_generado: pendiente,
+                fecha_entrega: fecha,
+                responsable: responsable,
+                observaciones: observaciones
+            });
+        }
+    });
+    
+    return documentos;
+}
+
 function agregarDocCalidad() {
     const container = document.getElementById('container-doc-calidad');
     const id = contadorCalidad++;
@@ -326,6 +447,31 @@ function agregarDocCalidad() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+}
+
+function recopilarDocCalidad() {
+    const items = document.querySelectorAll('#container-doc-calidad .actividad-item');
+    const documentos = [];
+    
+    items.forEach(item => {
+        const documento = item.querySelector('.doc-nombre').value.trim();
+        const pendiente = item.querySelector('.doc-pendiente').value.trim();
+        const fecha = item.querySelector('.doc-fecha').value;
+        const responsable = item.querySelector('.doc-responsable').value.trim();
+        const observaciones = item.querySelector('.doc-observaciones').value.trim();
+        
+        if (documento) {
+            documentos.push({
+                documento: documento,
+                pendiente_generado: pendiente,
+                fecha_entrega: fecha,
+                responsable: responsable,
+                observaciones: observaciones
+            });
+        }
+    });
+    
+    return documentos;
 }
 
 

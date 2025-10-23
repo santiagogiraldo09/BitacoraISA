@@ -28,6 +28,7 @@ from openpyxl import Workbook
 from openpyxl.drawing.image import Image as ExcelImage
 from PIL import Image
 import base64
+import uuid
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -39,6 +40,15 @@ POSTGRES_CONFIG = {
     "user": "postgres",  # Normalmente 'postgres' por defecto
     "password": "Daniel2030#",
     "port": "5432"  # Puerto predeterminado de PostgreSQL
+}
+
+SYNCHRO_CONFIG = {
+    'client_id': 'service-o5fkAjNrOy3DBriRDwK4aA3Ud',
+    'client_secret': 'VTkTyFi36+pUdJ/drZ5chOEhJufMuAZGofF9fzgg/SOUOkrPhPOZERxsq07FpleSZ0bBIRPJVjOua+bR4Exe3Q==',
+    'token_url': 'https://ims.bentley.com/connect/token',
+    'forms_url': 'https://api.bentley.com/forms',
+    'itwin_id': '29d0867b-2158-4b7a-ae03-c63a7661ca58',
+    'form_id': 'e4bQKVghekuuA8Y6dmHKWFnHJoEkgVZIgfbQasvZNi8'  # Formulario 1.09-00001
 }
 
 # Configura SharePoint (modifica con tus datos)
@@ -66,6 +76,244 @@ container_name = "registros"
 
 # Inicializa el cliente de BlobServiceClient
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+# ========================================
+# OBTENER TOKEN DE BENTLEY
+# ========================================
+def obtener_token_synchro():
+    """Obtiene token de acceso de Bentley IMS"""
+    try:
+        payload = {
+            'grant_type': 'client_credentials',
+            'client_id': SYNCHRO_CONFIG['client_id'],
+            'client_secret': SYNCHRO_CONFIG['client_secret'],
+            'scope': 'itwin-platform'
+        }
+        
+        response = requests.post(SYNCHRO_CONFIG['token_url'], data=payload, timeout=10)
+        
+        if response.status_code == 200:
+            token = response.json().get('access_token')
+            print("✅ Token obtenido")
+            return token
+        else:
+            print(f"❌ Error obteniendo token: {response.status_code}")
+            return None
+            
+    except Exception as e:
+        print(f"❌ Excepción: {str(e)}")
+        return None
+
+# ========================================
+# ENVIAR ACTIVIDADES A SYNCHRO
+# ========================================
+def enviar_actividades_synchro(token, data):
+    """Envía todas las actividades al formulario de Synchro"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/vnd.bentley.itwin-platform.v2+json',
+            'Prefer': 'return=representation',
+            'Content-Type': 'application/json'
+        }
+        
+        # 1. Obtener formulario actual
+        url_form = f"{SYNCHRO_CONFIG['forms_url']}/{SYNCHRO_CONFIG['form_id']}"
+        response = requests.get(url_form, headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            return {'success': False, 'error': f'No se pudo obtener formulario: {response.status_code}'}
+        
+        form_actual = response.json().get('form', {})
+        props = form_actual.get('properties', {})
+        
+        # 2. Actualizar propiedades básicas
+        props['Codigo Proyecto'] = data['codigo_proyecto']
+        props['Contratista'] = data['contratista']
+        props['Contrato'] = data['contrato']
+        
+        # 3. Sección 1: Actividades finalizadas
+        actividades_finalizadas = props.get('Actividades finalizadas', [])
+        for act in data.get('actividades_finalizadas', []):
+            nueva_act = {
+                'id': str(uuid.uuid4()),
+                '__x00cd__tem': act['item'],
+                'Descripci__x00f3__n': act['descripcion'],
+                'Observaciones__x0020__actividades__x': act['observaciones']
+            }
+            actividades_finalizadas.append(nueva_act)
+        props['Actividades finalizadas'] = actividades_finalizadas
+        
+        # 4. Sección 2: Actividades pendientes por culminar
+        actividades_pendientes = props.get('Actividades pendientes', [])
+        for act in data.get('actividades_pendientes', []):
+            nueva_act = {
+                'id': str(uuid.uuid4()),
+                '__x00cd__tem__x0020__Pendiente': act['item'],
+                'Descripci__x00f3__n__x0020__pendient': act['descripcion'],
+                'Pendiente__x0020__generado': act.get('pendiente_generado', ''),
+                'Observaciones__x0020__pendientes': act['observaciones']
+            }
+            actividades_pendientes.append(nueva_act)
+        props['Actividades pendientes'] = actividades_pendientes
+        
+        # 5. Sección 3: Actividades pendientes por facturar
+        # Nota: Necesitarás el nombre exacto de este campo en Synchro
+        # Por ahora lo dejo como ejemplo
+        if 'actividades_facturar' in data and data['actividades_facturar']:
+            actividades_facturar = props.get('Actividades pendientes por facturar', [])
+            for act in data['actividades_facturar']:
+                nueva_act = {
+                    'id': str(uuid.uuid4()),
+                    '__x00cd__tem': act['item'],
+                    'Descripci__x00f3__n': act['descripcion'],
+                    'Cantidad_contractual': act['cantidad_contractual'],
+                    'Cantidad_facturada': act['cantidad_facturada'],
+                    'Cantidad_pendiente': act['cantidad_pendiente'],
+                    'Observaci__x00f3__n': act['observacion']
+                }
+                actividades_facturar.append(nueva_act)
+            props['Actividades pendientes por facturar'] = actividades_facturar
+        
+        # 6-8. Secciones de documentación (similar estructura)
+        # Agregar según los nombres exactos de los campos en Synchro
+        
+        # 9. Enviar actualización
+        cambios = {'properties': props}
+        response_update = requests.patch(url_form, headers=headers, json=cambios, timeout=15)
+        
+        if response_update.status_code == 200:
+            print("✅ Formulario actualizado en Synchro")
+            return {'success': True, 'form_id': SYNCHRO_CONFIG['form_id']}
+        else:
+            error_msg = response_update.text
+            print(f"❌ Error actualizando: {error_msg}")
+            return {'success': False, 'error': error_msg}
+            
+    except Exception as e:
+        print(f"❌ Excepción: {str(e)}")
+        return {'success': False, 'error': str(e)}
+
+# ========================================
+# SUBIR ATTACHMENTS A SYNCHRO
+# ========================================
+def subir_attachments_synchro(token, fotos, videos):
+    """Sube fotos y videos como adjuntos al formulario"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/vnd.bentley.itwin-platform.v2+json'
+        }
+        
+        url_attachments = f"{SYNCHRO_CONFIG['forms_url']}/{SYNCHRO_CONFIG['form_id']}/attachments"
+        
+        contador = 0
+        
+        # Subir fotos
+        for i, foto_base64 in enumerate(fotos[:10]):  # Máximo 10 fotos
+            try:
+                if ',' in foto_base64:
+                    foto_base64 = foto_base64.split(',')[1]
+                
+                foto_bytes = base64.b64decode(foto_base64)
+                
+                files = {
+                    'file': (f'foto_{i+1}.jpg', io.BytesIO(foto_bytes), 'image/jpeg')
+                }
+                
+                data = {
+                    'caption': f'Foto {i+1} - Evidencia'
+                }
+                
+                response = requests.post(url_attachments, headers=headers, files=files, data=data, timeout=30)
+                
+                if response.status_code == 201:
+                    contador += 1
+                    print(f"✅ Foto {i+1} subida")
+                else:
+                    print(f"⚠️ Error subiendo foto {i+1}")
+                    
+            except Exception as e:
+                print(f"⚠️ Error procesando foto {i+1}: {str(e)}")
+                continue
+        
+        # Subir videos
+        for i, video_base64 in enumerate(videos[:5]):  # Máximo 5 videos
+            try:
+                if ',' in video_base64:
+                    video_base64 = video_base64.split(',')[1]
+                
+                video_bytes = base64.b64decode(video_base64)
+                
+                files = {
+                    'file': (f'video_{i+1}.webm', io.BytesIO(video_bytes), 'video/webm')
+                }
+                
+                data = {
+                    'caption': f'Video {i+1} - Evidencia'
+                }
+                
+                response = requests.post(url_attachments, headers=headers, files=files, data=data, timeout=60)
+                
+                if response.status_code == 201:
+                    contador += 1
+                    print(f"✅ Video {i+1} subido")
+                else:
+                    print(f"⚠️ Error subiendo video {i+1}")
+                    
+            except Exception as e:
+                print(f"⚠️ Error procesando video {i+1}: {str(e)}")
+                continue
+        
+        return contador
+        
+    except Exception as e:
+        print(f"❌ Error en subir_attachments: {str(e)}")
+        return 0
+    
+@app.route('/guardar-formulario', methods=['POST'])
+def guardar_formulario():
+    """Recibe datos del frontend y los envía a Synchro"""
+    try:
+        data = request.json
+        print("📥 Datos recibidos del frontend")
+        
+        # 1. Obtener token
+        token = obtener_token_synchro()
+        if not token:
+            return jsonify({
+                'success': False,
+                'error': 'No se pudo obtener token de Synchro'
+            }), 500
+        
+        # 2. Enviar actividades
+        resultado = enviar_actividades_synchro(token, data)
+        if not resultado['success']:
+            return jsonify(resultado), 500
+        
+        # 3. Subir fotos/videos
+        fotos = data.get('fotos', [])
+        videos = data.get('videos', [])
+        attachments_subidos = 0
+        
+        if fotos or videos:
+            attachments_subidos = subir_attachments_synchro(token, fotos, videos)
+        
+        # 4. Retornar éxito
+        return jsonify({
+            'success': True,
+            'mensaje': 'Registro guardado en Synchro exitosamente',
+            'form_id': SYNCHRO_CONFIG['form_id'],
+            'attachments_subidos': attachments_subidos
+        }), 200
+        
+    except Exception as e:
+        print(f"❌ Error en /guardar-formulario: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 
 def create_user(nombre, apellido, email, password, cargo, rol, empresa):
     try:
@@ -392,7 +640,13 @@ def index():
 
 @app.route('/formulario')
 def indexFormulario():
-    return render_template('indexFormulario.html')
+    """Muestra el formulario con datos pre-cargados"""
+    proyecto = {
+        'codigo': '10111',
+        'contratista': 'ABCD',
+        'contrato': '001'
+    }
+    return render_template('index.html', proyecto=proyecto)
 
 @app.route('/registros')
 def registros():
