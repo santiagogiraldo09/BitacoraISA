@@ -753,7 +753,7 @@ async function saveRecordForm() {
     
     try {
         // Mostrar loader
-        const button = document.getElementById('save-record');
+        const button = document.getElementById('save-record-form');
         button.disabled = true;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
         
@@ -818,7 +818,7 @@ async function saveRecordForm() {
         alert(`Error al guardar: ${error.message}`);
     } finally {
         // Restaurar botón
-        const button = document.getElementById('save-record');
+        const button = document.getElementById('save-record-form');
         button.disabled = false;
         button.innerHTML = '<i class="fas fa-save"></i> Guardar registro';
     }
