@@ -222,19 +222,51 @@ function agregarActividadPendiente() {
         <div class="actividad-item" data-id="${id}" data-tipo="pendiente">
             <div class="form-group">
                 <label>Ítem</label>
-                <input type="number" class="act-item" placeholder="Número de ítem">
+                <div class="input-with-icon">
+                    <input type="number" class="act-item" placeholder="Número de ítem" id="pend-item-${id}">
+                    <button type="button" class="record-btn" data-target-input="pend-item-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="pend-item-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Descripción *</label>
-                <input type="text" class="act-descripcion" required placeholder="Descripción de la actividad">
+                <div class="input-with-icon">
+                    <input type="text" class="act-descripcion" required placeholder="Descripción" id="pend-desc-${id}">
+                    <button type="button" class="record-btn" data-target-input="pend-desc-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="pend-desc-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Pendiente generado</label>
-                <input type="text" class="act-pendiente-generado" placeholder="Tipo de pendiente">
+                <div class="input-with-icon">
+                    <input type="text" class="act-pendiente-generado" placeholder="Tipo de pendiente" id="pend-gen-${id}">
+                    <button type="button" class="record-btn" data-target-input="pend-gen-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="pend-gen-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Observaciones</label>
-                <textarea class="act-observaciones" rows="2" placeholder="Observaciones"></textarea>
+                <div class="input-with-icon textarea-wrapper">
+                    <textarea class="act-observaciones" rows="2" placeholder="Observaciones" id="pend-obs-${id}"></textarea>
+                    <button type="button" class="record-btn" data-target-input="pend-obs-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="pend-obs-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <button type="button" class="remove-button" onclick="eliminarElemento(this)">
                 <i class="fas fa-trash"></i> Eliminar
@@ -243,6 +275,11 @@ function agregarActividadPendiente() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+    
+    agregarListenersVoz(`pend-item-${id}`);
+    agregarListenersVoz(`pend-desc-${id}`);
+    agregarListenersVoz(`pend-gen-${id}`);
+    agregarListenersVoz(`pend-obs-${id}`);
 }
 
 function recopilarActividadesPendientes() {
@@ -276,27 +313,75 @@ function agregarActividadFacturar() {
         <div class="actividad-item" data-id="${id}" data-tipo="facturar">
             <div class="form-group">
                 <label>Ítem</label>
-                <input type="number" class="act-item" placeholder="Número de ítem">
+                <div class="input-with-icon">
+                    <input type="number" class="act-item" placeholder="Número de ítem" id="fact-item-${id}">
+                    <button type="button" class="record-btn" data-target-input="fact-item-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fact-item-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Descripción *</label>
-                <input type="text" class="act-descripcion" required placeholder="Descripción">
+                <div class="input-with-icon">
+                    <input type="text" class="act-descripcion" required placeholder="Descripción" id="fact-desc-${id}">
+                    <button type="button" class="record-btn" data-target-input="fact-desc-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fact-desc-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Cantidad contractual</label>
-                <input type="number" step="0.01" class="act-cant-contractual" placeholder="0.00">
+                <div class="input-with-icon">
+                    <input type="number" step="0.01" class="act-cant-contractual" placeholder="0.00" id="fact-cont-${id}">
+                    <button type="button" class="record-btn" data-target-input="fact-cont-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fact-cont-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Cantidad facturada</label>
-                <input type="number" step="0.01" class="act-cant-facturada" placeholder="0.00">
+                <div class="input-with-icon">
+                    <input type="number" step="0.01" class="act-cant-facturada" placeholder="0.00" id="fact-fact-${id}">
+                    <button type="button" class="record-btn" data-target-input="fact-fact-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fact-fact-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
-                <label>Cantidad pendiente por facturar</label>
-                <input type="number" step="0.01" class="act-cant-pendiente" placeholder="0.00">
+                <label>Cantidad pendiente</label>
+                <div class="input-with-icon">
+                    <input type="number" step="0.01" class="act-cant-pendiente" placeholder="0.00" id="fact-pend-${id}">
+                    <button type="button" class="record-btn" data-target-input="fact-pend-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fact-pend-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Observación</label>
-                <textarea class="act-observaciones" rows="2" placeholder="Observaciones"></textarea>
+                <div class="input-with-icon textarea-wrapper">
+                    <textarea class="act-observaciones" rows="2" placeholder="Observaciones" id="fact-obs-${id}"></textarea>
+                    <button type="button" class="record-btn" data-target-input="fact-obs-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="fact-obs-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <button type="button" class="remove-button" onclick="eliminarElemento(this)">
                 <i class="fas fa-trash"></i> Eliminar
@@ -305,6 +390,13 @@ function agregarActividadFacturar() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+    
+    agregarListenersVoz(`fact-item-${id}`);
+    agregarListenersVoz(`fact-desc-${id}`);
+    agregarListenersVoz(`fact-cont-${id}`);
+    agregarListenersVoz(`fact-fact-${id}`);
+    agregarListenersVoz(`fact-pend-${id}`);
+    agregarListenersVoz(`fact-obs-${id}`);
 }
 
 function recopilarActividadesFacturar() {
@@ -342,11 +434,27 @@ function agregarDocSeguridad() {
         <div class="actividad-item" data-id="${id}" data-tipo="doc-seguridad">
             <div class="form-group">
                 <label>Documento *</label>
-                <input type="text" class="doc-nombre" required placeholder="Nombre del documento">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-nombre" required placeholder="Nombre del documento" id="seg-doc-${id}">
+                    <button type="button" class="record-btn" data-target-input="seg-doc-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="seg-doc-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Pendiente generado</label>
-                <input type="text" class="doc-pendiente" placeholder="Pendiente">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-pendiente" placeholder="Pendiente" id="seg-pend-${id}">
+                    <button type="button" class="record-btn" data-target-input="seg-pend-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="seg-pend-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Fecha de entrega</label>
@@ -354,11 +462,27 @@ function agregarDocSeguridad() {
             </div>
             <div class="form-group">
                 <label>Responsable</label>
-                <input type="text" class="doc-responsable" placeholder="Responsable">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-responsable" placeholder="Responsable" id="seg-resp-${id}">
+                    <button type="button" class="record-btn" data-target-input="seg-resp-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="seg-resp-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Observaciones</label>
-                <textarea class="doc-observaciones" rows="2" placeholder="Observaciones"></textarea>
+                <div class="input-with-icon textarea-wrapper">
+                    <textarea class="doc-observaciones" rows="2" placeholder="Observaciones" id="seg-obs-${id}"></textarea>
+                    <button type="button" class="record-btn" data-target-input="seg-obs-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="seg-obs-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <button type="button" class="remove-button" onclick="eliminarElemento(this)">
                 <i class="fas fa-trash"></i> Eliminar
@@ -367,6 +491,11 @@ function agregarDocSeguridad() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+    
+    agregarListenersVoz(`seg-doc-${id}`);
+    agregarListenersVoz(`seg-pend-${id}`);
+    agregarListenersVoz(`seg-resp-${id}`);
+    agregarListenersVoz(`seg-obs-${id}`);
 }
 
 function recopilarDocSeguridad() {
@@ -402,11 +531,27 @@ function agregarDocAmbiental() {
         <div class="actividad-item" data-id="${id}" data-tipo="doc-ambiental">
             <div class="form-group">
                 <label>Documento *</label>
-                <input type="text" class="doc-nombre" required placeholder="Nombre del documento">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-nombre" required placeholder="Nombre del documento" id="amb-doc-${id}">
+                    <button type="button" class="record-btn" data-target-input="amb-doc-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="amb-doc-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Pendiente generado</label>
-                <input type="text" class="doc-pendiente" placeholder="Pendiente">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-pendiente" placeholder="Pendiente" id="amb-pend-${id}">
+                    <button type="button" class="record-btn" data-target-input="amb-pend-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="amb-pend-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Fecha de entrega</label>
@@ -414,11 +559,27 @@ function agregarDocAmbiental() {
             </div>
             <div class="form-group">
                 <label>Responsable</label>
-                <input type="text" class="doc-responsable" placeholder="Responsable">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-responsable" placeholder="Responsable" id="amb-resp-${id}">
+                    <button type="button" class="record-btn" data-target-input="amb-resp-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="amb-resp-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Observaciones</label>
-                <textarea class="doc-observaciones" rows="2" placeholder="Observaciones"></textarea>
+                <div class="input-with-icon textarea-wrapper">
+                    <textarea class="doc-observaciones" rows="2" placeholder="Observaciones" id="amb-obs-${id}">< /textarea>
+                    <button type="button" class="record-btn" data-target-input="amb-obs-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="amb-obs-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <button type="button" class="remove-button" onclick="eliminarElemento(this)">
                 <i class="fas fa-trash"></i> Eliminar
@@ -427,6 +588,11 @@ function agregarDocAmbiental() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+    
+    agregarListenersVoz(`amb-doc-${id}`);
+    agregarListenersVoz(`amb-pend-${id}`);
+    agregarListenersVoz(`amb-resp-${id}`);
+    agregarListenersVoz(`amb-obs-${id}`);
 }
 
 function recopilarDocAmbiental() {
@@ -462,11 +628,27 @@ function agregarDocCalidad() {
         <div class="actividad-item" data-id="${id}" data-tipo="doc-calidad">
             <div class="form-group">
                 <label>Documento *</label>
-                <input type="text" class="doc-nombre" required placeholder="Nombre del documento">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-nombre" required placeholder="Nombre del documento" id="cal-doc-${id}">
+                    <button type="button" class="record-btn" data-target-input="cal-doc-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="cal-doc-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Pendiente generado</label>
-                <input type="text" class="doc-pendiente" placeholder="Pendiente">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-pendiente" placeholder="Pendiente" id="cal-pend-${id}">
+                    <button type="button" class="record-btn" data-target-input="cal-pend-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="cal-pend-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Fecha de entrega</label>
@@ -474,11 +656,27 @@ function agregarDocCalidad() {
             </div>
             <div class="form-group">
                 <label>Responsable</label>
-                <input type="text" class="doc-responsable" placeholder="Responsable">
+                <div class="input-with-icon">
+                    <input type="text" class="doc-responsable" placeholder="Responsable" id="cal-resp-${id}">
+                    <button type="button" class="record-btn" data-target-input="cal-resp-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="cal-resp-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Observaciones</label>
-                <textarea class="doc-observaciones" rows="2" placeholder="Observaciones"></textarea>
+                <div class="input-with-icon textarea-wrapper">
+                    <textarea class="doc-observaciones" rows="2" placeholder="Observaciones" id="cal-obs-${id}"></textarea>
+                    <button type="button" class="record-btn" data-target-input="cal-obs-${id}" title="Grabar">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="button" class="stop-btn" data-target-input="cal-obs-${id}" title="Detener" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
             </div>
             <button type="button" class="remove-button" onclick="eliminarElemento(this)">
                 <i class="fas fa-trash"></i> Eliminar
@@ -487,6 +685,11 @@ function agregarDocCalidad() {
     `;
     
     container.insertAdjacentHTML('beforeend', html);
+    
+    agregarListenersVoz(`cal-doc-${id}`);
+    agregarListenersVoz(`cal-pend-${id}`);
+    agregarListenersVoz(`cal-resp-${id}`);
+    agregarListenersVoz(`cal-obs-${id}`);
 }
 
 function recopilarDocCalidad() {
