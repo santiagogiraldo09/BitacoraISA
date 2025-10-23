@@ -29,6 +29,7 @@ from openpyxl.drawing.image import Image as ExcelImage
 from PIL import Image
 import base64
 import uuid
+import requests
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -763,60 +764,66 @@ def get_synchro_data():
 
 @app.route('/update-synchro-form', methods=['POST'])
 def update_synchro_data():
-    data = request.json
-    form_number = data.get('form_number')
-    new_properties = data.get('properties')
-    # Aquí también puedes manejar data.get('media') si tu API lo soporta
+    try:
+        data = request.json
+        form_number = data.get('form_number')
+        new_properties = data.get('properties')
+        # Aquí también puedes manejar data.get('media')
 
-    if not form_number or not new_properties:
-        return jsonify({'error': 'Faltan datos (form_number, properties)'}), 400
+        if not form_number or not new_properties:
+            return jsonify({'error': 'Faltan datos (form_number, properties)'}), 400
 
-    token = obtener_token()
-    if not token:
-        return jsonify({'error': 'No se pudo obtener el token'}), 500
+        token = obtener_token()
+        if not token:
+            return jsonify({'error': 'No se pudo obtener el token'}), 500
 
-    form_id, form = obtener_id_por_numero(token, form_number)
-    if not form_id:
-        return jsonify({'error': 'Formulario no encontrado'}), 404
+        form_id, form = obtener_id_por_numero(token, form_number)
+        if not form_id:
+            return jsonify({'error': 'Formulario no encontrado'}), 404
 
-    # Esta es la lógica clave:
-    # Fusiona las propiedades existentes con las nuevas
+        props_actuales = form.get('properties', {})
+        
+        for section_name, new_items in new_properties.items():
+            if not new_items: 
+                continue
 
-    props_actuales = form.get('properties', {})
+            lista_actual = props_actuales.get(section_name, [])
+            
+            # Generar UUIDs para los nuevos items ANTES de agregarlos
+            for item in new_items:
+                item['id'] = str(uuid.uuid4()) # Aseguramos un ID único
+            
+            lista_actual.extend(new_items)
+            props_actuales[section_name] = lista_actual
 
-    # Itera sobre las secciones enviadas (ej. "Actividades pendientes")
-    for section_name, new_items in new_properties.items():
-        if not new_items: # Si el array está vacío, no hacer nada
-            continue
+        # --- PREPARAR Y ENVIAR EL PATCH ---
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/vnd.bentley.itwin-platform.v2+json',
+            'Content-Type': 'application/json'
+        }
+        
+        cambios = {
+            'properties': props_actuales
+        }
+        
+        # --- CAMBIO 1: Usar SYNCHRO_CONFIG en lugar de BASE_URL ---
+        url = f"{SYNCHRO_CONFIG['forms_url']}/{form_id}"
+        
+        # --- CAMBIO 2: Usar requests.patch (con 's') ---
+        response = requests.patch(url, headers=headers, json=cambios)
+        
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            print(f"Error al actualizar Synchro ({response.status_code}): {response.text}")
+            return jsonify({'error': 'Error al actualizar Synchro', 'details': response.text}), response.status_code
 
-        # Obtiene la lista actual de esa sección (ej. props_actuales['Actividades pendientes'])
-        lista_actual = props_actuales.get(section_name, [])
-
-        # Añade los nuevos items a la lista
-        lista_actual.extend(new_items)
-
-        # Vuelve a poner la lista actualizada en las propiedades
-        props_actuales[section_name] = lista_actual
-
-    # --- PREPARAR Y ENVIAR EL PATCH ---
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Accept': 'application/vnd.bentley.itwin-platform.v2+json',
-        'Content-Type': 'application/json'
-    }
-
-    cambios = {
-        'properties': props_actuales
-    }
-
-    url = f"{BASE_URL}/{form_id}" # BASE_URL de tu script de Synchro
-
-    response = requests.patch(url, headers=headers, json=cambios)
-
-    if response.status_code == 200:
-        return jsonify(response.json())
-    else:
-        return jsonify({'error': 'Error al actualizar Synchro', 'details': response.text}), response.status_code
+    except Exception as e:
+        print(f"Excepción en update_synchro_data: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Error interno del servidor: {str(e)}'}), 500
 
 @app.route('/formulario')
 def indexFormulario():
