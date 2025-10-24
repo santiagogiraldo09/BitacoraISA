@@ -549,9 +549,9 @@ textarea.form-input {
 .add-item-btn {
     width: 100%;
     padding: 10px;
-    background-color: #28a745; /* Verde */
-    color: white;
-    border: none;
+    background-color: #ffffff; /* <-- Fondo blanco */
+    color: #000000;           /* <-- Letra negra */
+    border: 2px solid #007bff; /* <-- Borde azul */
     border-radius: 5px;
     font-size: 1em;
     font-weight: bold;
