@@ -130,7 +130,7 @@ button {
 
 #successMessage {
     display: none;
-    color: green;
+    color: rgb(26, 179, 255);
     font-weight: bold;
     margin-top: 20px;
 }
