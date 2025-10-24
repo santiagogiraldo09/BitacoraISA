@@ -171,9 +171,15 @@ function startVoiceInput_Android() {
     recognition.maxAlternatives = 1;
 
     recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
+        let transcript = event.results[0][0].transcript; // Cambiado a 'let'
         const targetInput = document.getElementById(activeInputId);
+        
         if (targetInput) {
+            // SI el campo es de tipo número, limpiamos el string
+            if (targetInput.type === 'number') {
+                // Reemplaza todo lo que NO sea un dígito (\D) por nada ('')
+                transcript = transcript.replace(/\D/g, '');
+            }
             targetInput.value = transcript;
         }
     };
@@ -216,8 +222,17 @@ function startVoiceInput_iOS() {
             .then(res => res.json())
             .then(data => {
                 if (data.text) {
+                    let transcript = data.text; // Cambiado a 'let'
                     const targetInput = document.getElementById(activeInputId);
-                    if (targetInput) targetInput.value = data.text;
+
+                    if (targetInput) {
+                        // SI el campo es de tipo número, limpiamos el string
+                        if (targetInput.type === 'number') {
+                            // Reemplaza todo lo que NO sea un dígito (\D) por nada ('')
+                            transcript = transcript.replace(/\D/g, '');
+                        }
+                        targetInput.value = transcript;
+                    }
                 } else {
                     console.error("Transcripción fallida:", data.error);
                     alert("No se pudo transcribir el audio.");
@@ -437,7 +452,26 @@ async function saveFormToSynchro() {
             
             itemBox.querySelectorAll('.form-input').forEach(input => {
                 const apiName = input.dataset.apiName;
-                if (apiName) {
+                if (!apiName) return; // Si no tiene nombre api, saltar
+
+                // Si el input está vacío, enviar null
+                if (input.value === '') {
+                    itemData[apiName] = null;
+                }
+                // Si es de tipo número, debemos decidir si es Entero o Decimal
+                else if (input.type === 'number') {
+
+                    // Los campos de Ítem deben ser Enteros (Integer)
+                    if (apiName.includes('__x00cd__tem')) {
+                        itemData[apiName] = parseInt(input.value, 10);
+                    } 
+                    // Los campos de Cantidad (de la sección 3) deben ser Decimales (Float)
+                    else {
+                        itemData[apiName] = parseFloat(input.value);
+                    }
+                } 
+                // Los campos de texto (Descripción, etc.) se quedan como string
+                else {
                     itemData[apiName] = input.value;
                 }
             });
