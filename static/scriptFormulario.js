@@ -445,6 +445,9 @@ function deleteVideo(index) {
  */
 async function saveFormToSynchro() {
     console.log("Iniciando guardado en Synchro...");
+    const saveButton = document.getElementById('save-form-button');
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...'; // Muestra un spinner
+    saveButton.disabled = true; // Deshabilita el botón para evitar doble clic
     const properties = {};
     const sections = document.querySelectorAll('.accordion-content[data-api-section]');
 
@@ -464,7 +467,7 @@ async function saveFormToSynchro() {
                 'id': crypto.randomUUID() 
             };
             
-            // ---- INICIO DE LA MODIFICACIÓN ----
+            
             itemBox.querySelectorAll('.form-input').forEach(input => {
                 const apiName = input.dataset.apiName;
                 if (!apiName) return;
@@ -531,5 +534,8 @@ async function saveFormToSynchro() {
     } catch (error) {
         console.error("Error al guardar en Synchro:", error);
         alert(`Error al guardar: ${error.message}`);
+
+        saveButton.innerHTML = '<i class="fas fa-save"></i> Guardar Formulario';
+        saveButton.disabled = false;
     }
 }
