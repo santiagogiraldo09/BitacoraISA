@@ -3,158 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Actividades - Synchro</title>
-    <link rel="icon" href="{{ url_for('static', filename='logoISA.jpg') }}" type="image/x-icon">
+    <title>Control Calidad Materiales - Synchro</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='styleFormulario.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
-    <template id="template-actividad-finalizada">
+    <template id="template-control-calidad">
         <div class="dynamic-item-box">
+            
             <div class="form-group">
-                <label>Ítem</label>
+                <label>ITEM</label>
                 <div class="input-with-icon">
-                    <input type="number" class="form-input" data-api-name="__x00cd__tem" placeholder="Número de ítem">
+                    <input type="number" class="form-input" data-api-name="ITEM" placeholder="Número de ítem">
                     <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
                 </div>
             </div>
+            
             <div class="form-group">
-                <label>Descripción *</label>
+                <label>Material</label>
                 <div class="input-with-icon">
-                    <textarea class="form-input" data-api-name="Descripci__x00f3__n" placeholder="Descripción de la actividad"></textarea>
+                    <input type="text" class="form-input" data-api-name="Material" placeholder="Descripción del material">
                     <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Observaciones</label>
-                <div class="input-with-icon">
-                    <textarea class="form-input" data-api-name="Observaciones__x0020__actividades__x" placeholder="Observaciones"></textarea>
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            <button type="button" class="delete-item-btn"><i class="fas fa-trash"></i> Eliminar</button>
-        </div>
-    </template>
 
-    <template id="template-actividad-pendiente-culminar">
-        <div class="dynamic-item-box">
             <div class="form-group">
-                <label>Ítem</label>
+                <label>Unidad</label>
                 <div class="input-with-icon">
-                    <input type="number" class="form-input" data-api-name="__x00cd__tem__x0020__Pendiente" placeholder="Número de ítem">
+                    <input type="text" class="form-input" data-api-name="Unidad" placeholder="Unidad (ej: m3, kg)">
                     <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Descripción *</label>
-                <div class="input-with-icon">
-                    <textarea class="form-input" data-api-name="Descripci__x00f3__n__x0020__pendient" placeholder="Descripción"></textarea>
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Pendiente generado</label>
-                <div class="input-with-icon">
-                    <input type="text" class="form-input" data-api-name="Pendiente__x0020__generado" placeholder="Tipo de pendiente">
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Observaciones</label>
-                <div class="input-with-icon">
-                    <textarea class="form-input" data-api-name="Observaciones__x0020__pendientes" placeholder="Observaciones"></textarea>
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            <button type="button" class="delete-item-btn"><i class="fas fa-trash"></i> Eliminar</button>
-        </div>
-    </template>
 
-    <template id="template-actividad-facturar">
-        <div class="dynamic-item-box">
             <div class="form-group">
-                <label>Ítem</label>
+                <label>Fecha Arribo</label>
                 <div class="input-with-icon">
-                    <input type="text" class="form-input" data-api-name="Item_Facturar" placeholder="Número de ítem">
+                    <input type="date" class="form-input" data-api-name="Fecha__x0020__Arribo">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Proveedor</label>
+                <div class="input-with-icon">
+                    <input type="text" class="form-input" data-api-name="Proveedor" placeholder="Nombre del proveedor">
                     <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
                 </div>
             </div>
+
             <div class="form-group">
-                <label>Descripción *</label>
+                <label>Cantidad</label>
                 <div class="input-with-icon">
-                    <textarea class="form-input" data-api-name="Descripcion_Facturar" placeholder="Descripción"></textarea>
+                    <input type="number" class="form-input" data-api-name="Cantidad" placeholder="0.00">
                     <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
                 </div>
             </div>
+
             <div class="form-group">
-                <label>Cantidad contractual</label>
+                <label>Cumplimiento Especificaciones</label>
                 <div class="input-with-icon">
-                    <input type="number" class="form-input" data-api-name="Cant_Contractual" placeholder="0.00">
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
+                    <select class="form-input" data-api-name="Cumplimiento__x0020__Especificacione">
+                        <option value="SI">SI</option>
+                        <option value="NO">NO</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
             </div>
+
             <div class="form-group">
-                <label>Cantidad facturada</label>
+                <label>Certificación de Calidad</label>
                 <div class="input-with-icon">
-                    <input type="number" class="form-input" data-api-name="Cant_Facturada" placeholder="0.00">
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
+                    <select class="form-input" data-api-name="Certificaci__x00f3__n__x0020__de__x0">
+                        <option value="SI">SI</option>
+                        <option value="NO">NO</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
             </div>
+            
             <div class="form-group">
-                <label>Cantidad pendiente</label>
+                <label>Condiciones del Material</label>
                 <div class="input-with-icon">
-                    <input type="number" class="form-input" data-api-name="Cant_Pendiente" placeholder="0.00">
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
+                    <select class="form-input" data-api-name="Condiciones__x0020__del__x0020__Mate">
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                    </select>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Observación</label>
-                <div class="input-with-icon">
-                    <textarea class="form-input" data-api-name="Obs_Facturar" placeholder="Observaciones"></textarea>
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            <button type="button" class="delete-item-btn"><i class="fas fa-trash"></i> Eliminar</button>
-        </div>
-    </template>
-    
-    <template id="template-documento">
-        <div class="dynamic-item-box">
-            <div class="form-group">
-                <label>Documento *</label>
-                <div class="input-with-icon">
-                    <input type="text" class="form-input" data-api-name="Documento_Nombre" placeholder="Nombre del documento">
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Pendiente generado</label>
-                <div class="input-with-icon">
-                    <input type="text" class="form-input" data-api-name="Doc_Pendiente_Generado" placeholder="Pendiente">
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Fecha de entrega</label>
-                <div class="input-with-icon">
-                    <input type="date" class="form-input" data-api-name="Doc_Fecha_Entrega">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Responsable</label>
-                <div class="input-with-icon">
-                    <input type="text" class="form-input" data-api-name="Doc_Responsable" placeholder="Responsable">
-                    <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
+            
             <div class="form-group">
                 <label>Observaciones</label>
                 <div class="input-with-icon">
-                    <textarea class="form-input" data-api-name="Doc_Observaciones" placeholder="Observaciones"></textarea>
+                    <textarea class="form-input" data-api-name="Observaciones" placeholder="Observaciones..."></textarea>
                     <button class="mic-button" type="button"><i class="fas fa-microphone"></i></button>
                 </div>
             </div>
+
             <button type="button" class="delete-item-btn"><i class="fas fa-trash"></i> Eliminar</button>
         </div>
     </template>
@@ -162,9 +108,9 @@
     <div id="app">
         <header>
             <div id="logo-container">
-                <img src="{{ url_for('static', filename='logoISA.jpg') }}" id="logo" alt="Logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" id="logo" alt="Logo">
             </div>
-            <h1>Registro de Actividades (Synchro)</h1>
+            <h1>Control Calidad Materiales (Synchro)</h1>
         </header>
 
         <form id="synchro-form">
@@ -174,124 +120,27 @@
                 </summary>
                 <div class="accordion-content">
                     <div class="form-group">
-                        <label>Código</label>
-                        <input type="text" id="form-codigo" class="form-input-static" readonly>
+                        <label>Código Proyecto</label>
+                        <input type="text" id="form-codigo-proyecto" class="form-input-static" readonly>
                     </div>
                     <div class="form-group">
                         <label>Contratista</label>
                         <input type="text" id="form-contratista" class="form-input-static" readonly>
                     </div>
                     <div class="form-group">
-                        <label>Contrato</label>
+                        <label>Contrato N°</label>
                         <input type="text" id="form-contrato" class="form-input-static" readonly>
                     </div>
                 </div>
             </details>
 
-            <details class="accordion-item">
+            <details class="accordion-item" open>
                 <summary class="accordion-header">
-                    <span class="accordion-number">1</span>
-                    <span class="accordion-title">Actividades finalizadas y validadas</span>
+                    <span class="accordion-title">Control Calidad Materiales</span>
                 </summary>
-                <div class="accordion-content" id="container-act-finalizadas" data-api-section="Actividades finalizadas">
-                    <button type="button" class="add-item-btn" data-template="template-actividad-finalizada">+ Agregar Actividad</button>
+                <div class="accordion-content" id="container-calidad-materiales" data-api-section="Cumplimientos">
+                    <button type="button" class="add-item-btn" data-template="template-control-calidad">+ Añadir fila</button>
                     </div>
-            </details>
-
-            <details class="accordion-item">
-                <summary class="accordion-header">
-                    <span class="accordion-number">2</span>
-                    <span class="accordion-title">Actividades pendientes por culminar</span>
-                </summary>
-                <div class="accordion-content" id="container-act-pend-culminar" data-api-section="Actividades pendientes">
-                    <button type="button" class="add-item-btn" data-template="template-actividad-pendiente-culminar">+ Agregar Actividad</button>
-                    </div>
-            </details>
-
-            <details class="accordion-item">
-                <summary class="accordion-header">
-                    <span class="accordion-number">3</span>
-                    <span class="accordion-title">Actividades pendientes por facturar</span>
-                </summary>
-                <div class="accordion-content" id="container-act-facturar" data-api-section="Actividades_Facturar">
-                    <button type="button" class="add-item-btn" data-template="template-actividad-facturar">+ Agregar Actividad</button>
-                    </div>
-            </details>
-
-            <details class="accordion-item">
-                <summary class="accordion-header">
-                    <span class="accordion-number">4</span>
-                    <span class="accordion-title">Documentación pendiente (Seguridad y Salud)</span>
-                </summary>
-                <div class="accordion-content" id="container-doc-sys" data-api-section="Documentacion_SyS">
-                    <button type="button" class="add-item-btn" data-template="template-documento">+ Agregar Documento</button>
-                    </div>
-            </details>
-
-            <details class="accordion-item">
-                <summary class="accordion-header">
-                    <span class="accordion-number">5</span>
-                    <span class="accordion-title">Documentación pendiente (Gestión Ambiental y Social)</span>
-                </summary>
-                <div class="accordion-content" id="container-doc-gas" data-api-section="Documentacion_GAS">
-                    <button type="button" class="add-item-btn" data-template="template-documento">+ Agregar Documento</button>
-                    </div>
-            </details>
-
-            <details class="accordion-item">
-                <summary class="accordion-header">
-                    <span class="accordion-number">6</span>
-                    <span class="accordion-title">Documentación pendiente (Calidad del Proyecto)</span>
-                </summary>
-                <div class="accordion-content" id="container-doc-calidad" data-api-section="Documentacion_Calidad">
-                    <button type="button" class="add-item-btn" data-template="template-documento">+ Agregar Documento</button>
-                    </div>
-            </details>
-
-            <details class="accordion-item">
-                <summary class="accordion-header">
-                    <i class="fas fa-camera" style="margin-right: 8px;"></i>
-                    <span class="accordion-title">Evidencia Fotográfica y Videos</span>
-                </summary>
-                <div class="accordion-content">
-                    <div id="camera-container" style="display:none;">
-                        <video id="videoElement" autoplay playsinline muted></video>
-                        <canvas id="photoCanvas" style="display:none;"></canvas>
-                    </div>
-
-                    <div id="photoThumbnails" class="thumbnails-container"></div>
-                    <div id="videoThumbnails" class="thumbnails-container"></div>
-                    
-                    <div class="button-row-center">
-                        <button type="button" id="start-camera" class="main-button" onclick="startCamera()">
-                            <i class="fas fa-camera"></i> Iniciar cámara
-                        </button>
-                    </div>
-
-                    <div id="camera-controls" style="display:none;">
-                        <div class="button-row-center">
-                            <button type="button" id="take-photo" class="round-button" title="Tomar Foto">
-                                <i class="fas fa-camera"></i>
-                            </button>
-                            <button type="button" id="start-record-btn" class="round-button" title="Grabar Video">
-                                <i class="fas fa-video"></i>
-                            </button>
-                            <button type="button" id="stop-record-btn" class="round-button stop-button" title="Detener Grabación" style="display:none;">
-                                <i class="fas fa-stop"></i>
-                            </button>
-                        </div>
-                        <div class="button-row-center">
-                            <button type="button" class="clip-button" onclick="document.getElementById('file-input').click()" title="Adjuntar imagen">
-                                <i class="fas fa-paperclip"></i>
-                            </button>
-                            <input type="file" id="file-input" class="file-input" accept="image/*">
-                            
-                            <button type="button" class="clip-button" onclick="document.getElementById('video-file-input').click()" title="Adjuntar video">
-                                <i class="fas fa-video-slash"></i> </button>
-                            <input type="file" id="video-file-input" class="file-input" accept="video/*">
-                        </div>
-                    </div>
-                </div>
             </details>
 
             <div class="save-container">

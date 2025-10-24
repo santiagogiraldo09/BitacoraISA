@@ -42,12 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadProjectData() {
     console.log("Cargando datos del proyecto desde Synchro...");
     
-    // NÚMERO DE FORMULARIO: Debes obtenerlo de alguna parte
-    // (Ej. de la URL, o hardcodeado si es para un formulario específico)
-    const formNumber = "1.09-00001"; // <--- EJEMPLO
+    // ==================================================================
+    // ¡¡¡IMPORTANTE!!!
+    // Cambia este número por el del formulario que quieres editar
+    // ==================================================================
+    const formNumber = "2.02-00003"; // <--- CAMBIA ESTO
 
     try {
-        // **NECESITARÁS CREAR ESTE ENDPOINT EN APP.PY**
         const response = await fetch(`/get-synchro-form-data?form_number=${formNumber}`);
         
         if (!response.ok) {
@@ -56,19 +57,26 @@ async function loadProjectData() {
 
         const data = await response.json();
 
-        // Asumiendo que el backend devuelve un JSON con 'properties'
-        // Los nombres de campo (ej. 'Código') deben coincidir con lo que devuelve tu API
-        document.getElementById('form-codigo').value = data.number || formNumber;
-        document.getElementById('form-contratista').value = data.properties.Contratista || 'N/A';
-        document.getElementById('form-contrato').value = data.properties.Contrato || 'N/A';
+        // ---- INICIO DE LA MODIFICACIÓN ----
+        // Leemos los nombres de propiedad del nuevo JSON
+        
+        // El 'number' (ej: 2.02-00003) viene del objeto principal
+        // const formCodigo = data.number || formNumber; 
+        
+        // Los otros campos vienen de 'properties'
+        const props = data.properties || {};
+        
+        // Usamos los nombres del JSON: 'Codigo Proyecto', 'Contrato', 'Contratista'
+        document.getElementById('form-codigo-proyecto').value = props['Codigo Proyecto'] || 'N/A';
+        document.getElementById('form-contratista').value = props.Contratista || 'N/A';
+        document.getElementById('form-contrato').value = props.Contrato || 'N/A';
+        
+        // ---- FIN DE LA MODIFICACIÓN ----
 
-    } catch (error) {
+    } catch (error)
+    {
         console.error("Error al cargar datos del proyecto:", error);
-        alert("Error al cargar datos del proyecto. Usando valores de ejemplo.");
-        // Valores de fallback por si falla la API
-        document.getElementById('form-codigo').value = formNumber;
-        document.getElementById('form-contratista').value = "Contratista Ejemplo";
-        document.getElementById('form-contrato').value = "Contrato Ejemplo";
+        alert("Error al cargar datos del proyecto. Revisa la consola y el backend.");
     }
 }
 
@@ -440,67 +448,70 @@ async function saveFormToSynchro() {
     const properties = {};
     const sections = document.querySelectorAll('.accordion-content[data-api-section]');
 
+    // Obtenemos el número de formulario desde el campo de texto (que se cargó en loadProjectData)
+    // Usamos 'form-codigo-proyecto' y tomamos el 'number' del formulario, no el 'Codigo Proyecto'
+    const formNumberInput = document.getElementById('form-codigo-proyecto');
+    // Esto es un truco: guardamos el n° de formulario real en un atributo data-*
+    const formNumber = formNumberInput.dataset.formNumber || "2.02-00003"; // Fallback
+
+
     sections.forEach(section => {
-        const sectionName = section.dataset.apiSection;
+        const sectionName = section.dataset.apiSection; // Ej: "Cumplimientos"
         const items = [];
         
         section.querySelectorAll('.dynamic-item-box').forEach(itemBox => {
             const itemData = {
-                // Generar un UUID en el frontend (o el backend puede hacerlo)
                 'id': crypto.randomUUID() 
             };
             
+            // ---- INICIO DE LA MODIFICACIÓN ----
             itemBox.querySelectorAll('.form-input').forEach(input => {
                 const apiName = input.dataset.apiName;
-                if (!apiName) return; // Si no tiene nombre api, saltar
+                if (!apiName) return;
+
+                let value = input.value; // Obtenemos el valor
 
                 // Si el input está vacío, enviar null
-                if (input.value === '') {
+                if (value === '') {
                     itemData[apiName] = null;
                 }
-                // Si es de tipo número, debemos decidir si es Entero o Decimal
+                // Si es un campo de fecha, formatearlo a ISO
+                else if (input.type === 'date' && apiName === 'Fecha__x0020__Arribo') {
+                    // input.value = "2025-10-30"
+                    // API espera = "2025-10-30T00:00:00Z"
+                    itemData[apiName] = `${value}T00:00:00Z`;
+                }
+                // Si es de tipo número, convertirlo a número
                 else if (input.type === 'number') {
-
-                    // Los campos de Ítem deben ser Enteros (Integer)
-                    if (apiName.includes('__x00cd__tem')) {
-                        itemData[apiName] = parseInt(input.value, 10);
-                    } 
-                    // Los campos de Cantidad (de la sección 3) deben ser Decimales (Float)
-                    else {
-                        itemData[apiName] = parseFloat(input.value);
+                    // Usamos parseFloat para admitir decimales (ej: Cantidad 5.0)
+                    itemData[apiName] = parseFloat(value);
+                    if (isNaN(itemData[apiName])) { // Si la conversión falla
+                        itemData[apiName] = null;
                     }
                 } 
-                // Los campos de texto (Descripción, etc.) se quedan como string
+                // Los campos de texto y <select> se quedan como string
                 else {
-                    itemData[apiName] = input.value;
+                    itemData[apiName] = value;
                 }
             });
+            // ---- FIN DE LA MODIFICACIÓN ----
+
             items.push(itemData);
         });
 
         properties[sectionName] = items;
     });
-
-    // Recolectar fotos y videos (filtrando los nulos si se eliminaron)
-    const finalPhotos = capturedPhotos.filter(p => p !== null);
-    const finalVideos = capturedVideos.filter(v => v !== null);
-
+    
+    // NOTA: 'media' (fotos/videos) se ha eliminado de este payload
+    // Si lo necesitas, vuelve a agregarlo.
     const payload = {
-        form_number: document.getElementById('form-codigo').value,
-        properties: properties,
-        // NOTA: La API de Synchro debe soportar guardar fotos/videos.
-        // Esto es un EJEMPLO de cómo podrías enviarlos.
-        // Quizás deban ir dentro de 'properties' en un campo específico.
-        media: {
-            photos: finalPhotos,
-            videos: finalVideos
-        }
+        form_number: formNumber,
+        properties: properties
     };
 
     console.log("Payload a enviar al backend:", JSON.stringify(payload, null, 2));
 
     try {
-        // **NECESITARÁS CREAR ESTE ENDPOINT EN APP.PY**
         const response = await fetch('/update-synchro-form', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -515,7 +526,6 @@ async function saveFormToSynchro() {
 
         alert("¡Formulario guardado en Synchro exitosamente!");
         console.log("Respuesta de Synchro:", result);
-        // Opcional: recargar o limpiar el formulario
         window.location.reload(); 
 
     } catch (error) {
