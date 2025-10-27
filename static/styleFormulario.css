@@ -305,12 +305,12 @@ button {
     width: auto;  
 }
 
-/* Esta regla es más específica que 'button' y por eso ganará. */
-.record-btn, .stop-btn {
-    flex-shrink: 0;       /* Evita que el botón se encoja */
-    width: 44px;          /* <-- Anula el width: 100% y le da un tamaño fijo */
-    height: 44px;         /* <-- Le da un tamaño fijo */
-    margin: 0;            /* Quitamos márgenes que puedan interferir */
+/* Ajusta el .mic-button (que ahora es .record-btn) */
+.record-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    margin: 0;
     padding: 0;
     border-radius: 50%;
     border: none;
@@ -319,18 +319,32 @@ button {
     justify-content: center;
     align-items: center;
     transition: background-color 0.2s ease;
-}
-
-/* 4. Estilos específicos que ya tenías (y están bien) */
-.record-btn {
-    background-color: transparent;
-    color: #FF6600; /* Verde */
-    font-size: 24px;
+    
+    /* Estilos del micrófono */
+    background-color: #f8b126; /* Naranja (o el color que tenías) */
+    color: white;
+    font-size: 20px;
 }
 .record-btn:hover {
-    background-color: #f0f0f0;
+    background-color: #d1941e;
 }
+
+/* El nuevo botón de stop */
 .stop-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+
+    /* Estilos del stop */
     background-color: #e74c3c; /* Rojo */
     color: white;
     font-size: 20px;
@@ -338,6 +352,13 @@ button {
 .stop-btn:hover {
     background-color: #c0392b;
 }
+
+/* Clase para cuando un input está grabando */
+.form-input.recording-active {
+    border-color: #e74c3c;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}
+
 
 /* Contenedor para la descripción dentro de la miniatura */
 .thumbnail-description-box {
@@ -703,6 +724,8 @@ textarea.form-input {
     border-radius: 5px;
     cursor: pointer;
 }
+
+
 
 /* Responsive para pantallas pequeñas */
 @media (max-width: 768px) {

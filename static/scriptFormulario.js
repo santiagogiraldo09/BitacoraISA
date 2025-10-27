@@ -14,6 +14,12 @@ let activeInputId = null;
 // IDs únicos para campos dinámicos
 let dynamicFieldCounter = 0;
 
+// Variables para la grabación de audio por campo
+let audioMediaRecorder;
+let audioFieldChunks = [];
+let isFieldRecording = false;
+let currentTargetInput = null;
+
 
 // ==================================================================
 // INICIALIZACIÓN DEL FORMULARIO
@@ -101,21 +107,41 @@ function addDynamicField(templateId, containerId) {
 
     const clone = template.content.firstElementChild.cloneNode(true);
 
-    // Asignar IDs únicos a los inputs y textareas para el reconocimiento de voz
+    // --- INICIO DE LA MODIFICACIÓN ---
+    
+    // 1. Asignar IDs únicos a los inputs Y asignarles los data-target a sus botones
     clone.querySelectorAll('.form-input').forEach(input => {
+        // Solo procesamos inputs que no sean <select>
+        if (input.tagName === 'SELECT') return;
+
         const newId = `dynamic-input-${dynamicFieldCounter++}`;
         input.id = newId;
+
+        // Buscar los botones que están al mismo nivel (hermanos)
+        const buttonContainer = input.closest('.input-with-icon');
+        if (buttonContainer) {
+            const recordBtn = buttonContainer.querySelector('.record-btn');
+            const stopBtn = buttonContainer.querySelector('.stop-btn');
+            
+            // Asignar el ID del input al data-target de los botones
+            if (recordBtn) recordBtn.dataset.targetInput = newId;
+            if (stopBtn) stopBtn.dataset.targetInput = newId;
+        }
     });
 
-    // Asignar listeners a los nuevos botones de micrófono
-    clone.querySelectorAll('.mic-button').forEach(button => {
-        button.addEventListener('click', ()=> {
-            const input = button.closest('.input-with-icon').querySelector('.form-input');
-            startVoiceInput(input.id, button);
-        });
+    // 2. Asignar listeners a los nuevos botones de micrófono
+    clone.querySelectorAll('.record-btn').forEach(button => {
+        button.addEventListener('click', () => startFieldRecording(button));
     });
 
-    // Asignar listener al botón de eliminar
+    // 3. Asignar listeners a los nuevos botones de stop
+    clone.querySelectorAll('.stop-btn').forEach(button => {
+        button.addEventListener('click', stopFieldRecording);
+    });
+
+    // --- FIN DE LA MODIFICACIÓN ---
+
+    // Asignar listener al botón de eliminar (esto ya lo tenías)
     clone.querySelector('.delete-item-btn').addEventListener('click', () => {
         clone.remove();
     });
@@ -124,155 +150,81 @@ function addDynamicField(templateId, containerId) {
 }
 
 
-// ==================================================================
-// LÓGICA DE VOZ A TEXTO (REFACTORIZADA)
-// ==================================================================
-
-/**
- * Función principal que decide qué método de reconocimiento de voz usar.
- * @param {string} inputId - El ID del input/textarea a rellenar
- * @param {HTMLElement} micButton - El botón de micrófono que se presionó
- */
-function startVoiceInput(inputId, micButton) {
-    if (activeMicButton) {
-        console.log("Ya hay una grabación en curso.");
+// =================================================================
+//          GRABACIÓN DE AUDIO POR CAMPO (Lógica Original)
+// =================================================================
+function startFieldRecording(recordButton) {
+    if (isFieldRecording) return;
+    
+    const targetInputId = recordButton.dataset.targetInput;
+    currentTargetInput = document.getElementById(targetInputId);
+    if (!currentTargetInput) {
+        console.error("No se encontró el input target:", targetInputId);
         return;
     }
 
-    activeInputId = inputId;
-    activeMicButton = micButton;
-    activeMicButton.classList.add('recording');
-
-    if (isIOS()) {
-        console.log("Usando grabación de audio (iOS)");
-        startVoiceInput_iOS();
-    } else {
-        console.log("Usando webkitSpeechRecognition (Android/PC)");
-        startVoiceInput_Android();
-    }
-}
-
-/**
- * Detiene la interfaz de grabación (común para ambos métodos)
- */
-function stopVoiceInput() {
-    if (activeMicButton) {
-        activeMicButton.classList.remove('recording');
-        activeMicButton = null;
-    }
-    activeInputId = null;
-}
-
-/**
- * Lógica para Android/PC (API nativa)
- */
-function startVoiceInput_Android() {
-    if (!('webkitSpeechRecognition' in window)) {
-        alert("Este navegador no soporta reconocimiento de voz.");
-        stopVoiceInput();
-        return;
-    }
-
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = 'es-ES';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event) => {
-        let transcript = event.results[0][0].transcript; // Cambiado a 'let'
-        const targetInput = document.getElementById(activeInputId);
-        
-        if (targetInput) {
-            // SI el campo es de tipo número, limpiamos el string
-            if (targetInput.type === 'number') {
-                // Reemplaza todo lo que NO sea un dígito (\D) por nada ('')
-                transcript = transcript.replace(/\D/g, '');
-            }
-            targetInput.value = transcript;
-        }
-    };
-
-    recognition.onerror = (event) => {
-        console.error('Error de reconocimiento de voz:', event.error);
-        alert('Error en el reconocimiento. Intente de nuevo.');
-    };
-
-    recognition.onend = () => {
-        stopVoiceInput();
-    };
-
-    recognition.start();
-}
-
-/**
- * Lógica para iOS (Grabar y enviar al backend)
- */
-function startVoiceInput_iOS() {
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        const mediaRecorder = new MediaRecorder(stream);
-        const audioChunks = [];
-
-        mediaRecorder.ondataavailable = event => {
-            if (event.data.size > 0) audioChunks.push(event.data);
+        isFieldRecording = true;
+        audioFieldChunks = [];
+        
+        const stopButton = document.querySelector(`.stop-btn[data-target-input='${targetInputId}']`);
+        recordButton.style.display = 'none';
+        stopButton.style.display = 'flex';
+        
+        currentTargetInput.classList.add('recording-active');
+        currentTargetInput.placeholder = "Escuchando...";
+        
+        audioMediaRecorder = new MediaRecorder(stream);
+        audioMediaRecorder.start();
+        audioMediaRecorder.ondataavailable = event => audioFieldChunks.push(event.data);
+        
+        audioMediaRecorder.onstop = () => {
+            stream.getTracks().forEach(track => track.stop());
+            const audioBlob = new Blob(audioFieldChunks, { type: 'audio/webm' });
+            transcribeAudio(audioBlob);
         };
-
-        mediaRecorder.onstop = () => {
-            console.log("Grabación terminada. Enviando audio...");
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            const formData = new FormData();
-            formData.append('audio', audioBlob, 'respuesta.webm');
-
-            // Enviar al mismo endpoint de transcripción de tu app.py
-            fetch('/transcribe-audio', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.text) {
-                    let transcript = data.text; // Cambiado a 'let'
-                    const targetInput = document.getElementById(activeInputId);
-
-                    if (targetInput) {
-                        // SI el campo es de tipo número, limpiamos el string
-                        if (targetInput.type === 'number') {
-                            // Reemplaza todo lo que NO sea un dígito (\D) por nada ('')
-                            transcript = transcript.replace(/\D/g, '');
-                        }
-                        targetInput.value = transcript;
-                    }
-                } else {
-                    console.error("Transcripción fallida:", data.error);
-                    alert("No se pudo transcribir el audio.");
-                }
-            })
-            .catch(err => {
-                console.error("Error al enviar audio:", err);
-                alert("Error al enviar el audio al servidor.");
-            })
-            .finally(() => {
-                stopVoiceInput();
-                // Detener los tracks de audio para que se apague el ícono de grabación del navegador
-                stream.getTracks().forEach(track => track.stop());
-            });
-        };
-
-        mediaRecorder.start();
-        // Detener grabación después de 5 segundos (o usa un botón de stop)
-        setTimeout(() => {
-            if (mediaRecorder.state === 'recording') {
-                mediaRecorder.stop();
-            }
-        }, 5000); // 5 segundos de grabación
-    }).catch(err => {
+    }).catch((err) => {
         console.error("Error al acceder al micrófono:", err);
         alert("No se pudo acceder al micrófono.");
-        stopVoiceInput();
     });
 }
 
-function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+function stopFieldRecording() {
+    if (audioMediaRecorder && isFieldRecording) {
+        audioMediaRecorder.stop();
+    }
+}
+
+function transcribeAudio(audioBlob) {
+    if (!currentTargetInput) return;
+
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'respuesta.webm');
+    currentTargetInput.placeholder = "Transcribiendo...";
+
+    fetch('/transcribe-audio', { method: 'POST', body: formData })
+        .then(response => response.json())
+        .then(data => {
+            if (data.text) {
+                // Reemplazamos el texto en lugar de añadirlo
+                currentTargetInput.value = data.text; 
+            } else {
+                alert("No se pudo entender el audio.");
+            }
+        })
+        .catch((err) => {
+            console.error("Error en transcripción:", err);
+            alert("Error en la transcripción.");
+        })
+        .finally(() => {
+            const targetInputId = currentTargetInput.id;
+            document.querySelector(`.record-btn[data-target-input='${targetInputId}']`).style.display = 'flex';
+            document.querySelector(`.stop-btn[data-target-input='${targetInputId}']`).style.display = 'none';
+            currentTargetInput.classList.remove('recording-active');
+            currentTargetInput.placeholder = ""; // Limpiar placeholder
+            isFieldRecording = false;
+            currentTargetInput = null;
+        });
 }
 
 
