@@ -524,6 +524,10 @@ def get_speech_config():
     speech_config.speech_synthesis_language = "es-CO"
     speech_config.speech_synthesis_voice_name = "es-CO-GonzaloNeural"
     speech_config.set_property(speechsdk.PropertyId.SpeechServiceConnection_EndSilenceTimeoutMs, "8000")
+
+    # Esto le pide a Azure que formatee el texto, convirtiendo palabras como "cinco" a "5".
+    speech_config.set_property(speechsdk.PropertyId.SpeechServiceResponse_PostProcessingOption, "TrueText")
+
     return speech_config
 
 def synthesize_speech(text):

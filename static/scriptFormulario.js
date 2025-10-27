@@ -206,8 +206,24 @@ function transcribeAudio(audioBlob) {
         .then(response => response.json())
         .then(data => {
             if (data.text) {
-                // Reemplazamos el texto en lugar de añadirlo
-                currentTargetInput.value = data.text; 
+                
+                // --- INICIO DE LA CORRECCIÓN ---
+                let transcript = data.text;
+
+                // Verificamos si el campo de destino es de tipo "number"
+                if (currentTargetInput.type === 'number') {
+                    
+                    // 1. Quitamos espacios, comas o cualquier cosa que no sea un dígito o un punto.
+                    transcript = transcript.replace(/[^\d.]/g, '');
+                    
+                    // 2. Quitamos el punto decimal SOLO SI está al final del número (ej: "1." se vuelve "1", pero "5.5" se queda).
+                    transcript = transcript.replace(/\.$/, '');
+                }
+                
+                // Asignamos el texto ya limpio
+                currentTargetInput.value = transcript; 
+                // --- FIN DE LA CORRECCIÓN ---
+
             } else {
                 alert("No se pudo entender el audio.");
             }
@@ -218,8 +234,13 @@ function transcribeAudio(audioBlob) {
         })
         .finally(() => {
             const targetInputId = currentTargetInput.id;
-            document.querySelector(`.record-btn[data-target-input='${targetInputId}']`).style.display = 'flex';
-            document.querySelector(`.stop-btn[data-target-input='${targetInputId}']`).style.display = 'none';
+            // Usamos querySelector para asegurarnos de encontrar los botones
+            const recordBtn = document.querySelector(`.record-btn[data-target-input='${targetInputId}']`);
+            const stopBtn = document.querySelector(`.stop-btn[data-target-input='${targetInputId}']`);
+            
+            if (recordBtn) recordBtn.style.display = 'flex';
+            if (stopBtn) stopBtn.style.display = 'none';
+
             currentTargetInput.classList.remove('recording-active');
             currentTargetInput.placeholder = ""; // Limpiar placeholder
             isFieldRecording = false;
