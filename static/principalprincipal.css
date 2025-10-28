@@ -85,7 +85,7 @@ body, html {
     padding: 15px;                /* Espaciado interno */
     width: 90%;                   /* Ancho del botón */
     border-radius: 10px; 
-    border-color: #FF6600;         /* Bordes redondeados */
+    border-color: #0A76D8;         /* Bordes redondeados */
     text-align: center;           /* Centrar texto */
     text-decoration: none;        /* Quitar subrayado */
     font-size: 16px;              /* Tamaño de fuente */
@@ -100,9 +100,9 @@ body, html {
     color: rgb(0, 0, 0);                 /* Color del texto */
     padding: 15px;                /* Espaciado interno */
     width: 65%; 
-    border: 2px solid #FF6600;                  /* Ancho del botón */
+    border: 2px solid #0A76D8;                  /* Ancho del botón */
     border-radius: 10px; 
-    border-color: #FF6600;         /* Bordes redondeados */
+    border-color: #0A76D8;         /* Bordes redondeados */
     text-align: center;           /* Centrar texto */
     text-decoration: none;        /* Quitar subrayado */
     font-size: 16px;              /* Tamaño de fuente */
@@ -116,7 +116,7 @@ body, html {
 }
 
 .a:hover {
-    background-color: #FF6600;    /* Color de fondo al pasar el mouse */
+    background-color: #5196d6;    /* Color de fondo al pasar el mouse */
 }
 
 /* Asegúrate de que el icono se vea bien */
@@ -125,7 +125,7 @@ body, html {
     margin-bottom: 5px;           /* Espacio entre el icono y el texto */
 }
 .menu-button:hover {
-    background-color: #FF6600;    /* Color de fondo al pasar el mouse */
+    background-color: #5196d6;    /* Color de fondo al pasar el mouse */
 }
 
 /* Menú inferior */
@@ -140,7 +140,7 @@ body, html {
     z-index: 100;
 }
 .bottom-button {
-    background-color: #FF6600;
+    background-color: #0A76D8;
     color: white;
     padding: 10px 15px;
     border-radius: 10px;
@@ -159,7 +159,7 @@ body, html {
 }
 
 .bottom-button:hover {
-    background-color: #d86111;
+    background-color: #0463bc;
 }
 
 /* Ajustes responsivos para los botones */
@@ -236,7 +236,7 @@ body, html {
 }
 
 .dropdown-item:hover {
-    background-color: #d86111;
+    background-color: #0463bc;
     color: #fff;
 }
 
